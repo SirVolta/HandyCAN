@@ -1,4 +1,4 @@
-* HandyCAN
+# HandyCAN
 The HandyCAN is a communication solution to link many
 STM32 microcontrollers and a computer using a CAN bus network.
 The HandyCAN specification specifies three different type of devices:
