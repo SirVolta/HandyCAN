@@ -146,6 +146,7 @@ typedef struct
 
 /** 
   * @brief  CAN Tx message structure definition  
+  * @note Modified by SirVolta: Data changed from array to pointer type
   */
 
 typedef struct

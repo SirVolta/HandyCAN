@@ -48,9 +48,6 @@ static struct HandyCAN_config
   CAN_TypeDef* CANx;
 } handycan;
 
-
-
-
 /*!
  @brief  Initializes handyCAN to a specific CAN peripheral
  @param[in,out] CANx the can peripheral to use
@@ -60,7 +57,7 @@ static struct HandyCAN_config
  @todo Error handling, check can init
  */
 int8_t
-HandyCAN_INIT (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
+HandyCAN_init (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
 	       IRQn_Type FIFO0_IRQ, IRQn_Type FIFO1_IRQ)
 {
   CAN_InitTypeDef CAN_InitStruct;
@@ -156,13 +153,12 @@ HandyCAN_decodeCanRxMsg (CanRxMsg* rx_msg, struct HandyCAN_package* package)
 }
 
 /*!
- @brief Test if it is possible to transmit
- @note Tests if there are mailboxes available for transmit
+ @brief Check how many mailboxes there are available
+ @note Tests if it is possible to transmit
  @return 0: no, 1, one remaining, 2: 2 remaining, 3: 3 remaining
- @todo Error handling
  */
 int8_t
-HandyCAN_canTransmit (void)
+HandyCAN_remainingMailboxes (void)
 {
   uint8_t transmit_mailbox;
 
@@ -186,7 +182,7 @@ HandyCAN_canTransmit (void)
  @todo Error handling
  */
 int8_t
-HandyCAN_Transmit (uint8_t destination, uint8_t data[], uint8_t len)
+HandyCAN_transmit (uint8_t destination, uint8_t data[], uint8_t len)
 {
   CanTxMsg TxMessage;
   uint8_t mailbox;
@@ -212,16 +208,14 @@ HandyCAN_Transmit (uint8_t destination, uint8_t data[], uint8_t len)
  @brief Check if there are packets currently being transmitted
  @note checks if there is a mailbox in use
  @return The amount of messages queued. (0 to 3)
- @todo Error handling
  */
 int8_t
 HandyCAN_isTransmitting (void)
 {
-  if (HandyCAN_canTransmit() < 3)
+  if (HandyCAN_remainingMailboxes () < 3)
     return 1;
   else
     return 0;
-
 }
 
 /*!

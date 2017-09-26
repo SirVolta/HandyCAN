@@ -15,14 +15,13 @@
 
  You should have received a copy of the GNU General Public License
  along with HandyCAN.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "stm32f10x_conf.h"
 #include "svlib_stm32f10x.h"
 #include "HandyCAN.h"
 //#include <stdio.h>
 //#include <stdlib.h>
-
 
 /*!
  @brief Called when package addressed to us is received
@@ -36,12 +35,13 @@ USB_LP_CAN1_RX0_IRQHandler (void)
 
   CAN_Receive (CAN1, CAN_FIFO0, &rx_message);
   HandyCAN_decodeCanRxMsg (&rx_message, &package);
-  trace_printf ("Received message from %#x: %u\n", package.source_adress, package.data[0]);
+  trace_printf ("Received message from %#x: %u\n", package.source_adress,
+		package.data[0]);
 
   for (uint8_t i = 0; i < package.len; i++)
-      trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
+    trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
 
-  GPIO_ToggleBits (GPIOC, GPIO_Pin_13);
+  GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
 }
 
 /*!
@@ -56,14 +56,15 @@ CAN1_RX1_IRQHandler (void)
 
   CAN_Receive (CAN1, CAN_FIFO1, &rx_message);
   HandyCAN_decodeCanRxMsg (&rx_message, &package);
-  trace_printf ("Received BROADCAST from %#x: %u\n", package.source_adress, package.data[0]);
+  trace_printf ("Received BROADCAST from %#x: %u\n", package.source_adress,
+		package.data[0]);
 
   for (uint8_t i = 0; i < package.len; i++)
-     trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
+    trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
 }
 
 int
-main(void)
+main (void)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
   uint8_t data[8];
@@ -92,13 +93,13 @@ main(void)
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init (GPIOC, &GPIO_InitStruct);
 
-
-  initDWT();
+  initDWT ();
   //Init handycan: CAN1, our address is 0x0F, loopback mode for testing, CAN1 interrupts.
-  HandyCAN_INIT(CAN1, 0x0F, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn, CAN1_RX1_IRQn);
+  HandyCAN_init (CAN1, 0x0F, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn,
+		 CAN1_RX1_IRQn);
 
   // test data
-  data[0] = 0x02;
+  data[0] = 0x00;
   data[1] = 0x12;
   data[2] = 0x22;
   data[3] = 0x32;
@@ -107,21 +108,19 @@ main(void)
   data[6] = 0x62;
   data[7] = 0x72;
 
-
-  trace_puts("HandyCAN Ready");
+  trace_puts ("HandyCAN Ready");
 
   while (1)
     {
-      trace_printf("Avaliable: %u\n", HandyCAN_canTransmit());
+      trace_printf ("Available: %u\n", HandyCAN_remainingMailboxes ());
 
       data[0]++;
-      HandyCAN_Transmit(0x0F, data, 4);
-
+      HandyCAN_transmit (0x0F, data, 4);
 
       data[0]++;
-      HandyCAN_Transmit(HC_BROADCAST_ADDR, data, 1);
-      trace_printf("Avaliable: %u\n", HandyCAN_canTransmit());
+      HandyCAN_transmit (HC_BROADCAST_ADDR, data, 1);
+      trace_printf ("Available: %u\n", HandyCAN_remainingMailboxes ());
 
-      delayUs(3000 * 1000);
+      delayUs (3000 * 1000);
     }
 }

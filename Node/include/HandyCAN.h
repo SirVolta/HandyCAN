@@ -23,11 +23,10 @@
 
  You should have received a copy of the GNU General Public License
  along with HandyCAN.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #ifndef HANDYCAN_H_
 #define HANDYCAN_H_
 #include "stm32f10x_conf.h"
-
 
 #define HC_DEST_MASK 0x1F
 
@@ -41,7 +40,6 @@
 
 #define HC_CAN_SEND_TIMEOUT 0xFFFFF
 
-
 /// @brief local state and configuration info
 struct HandyCAN_package
 {
@@ -51,26 +49,21 @@ struct HandyCAN_package
   uint8_t data[8];
 };
 
-
-
 int8_t
-HandyCAN_INIT (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
+HandyCAN_init (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
 	       IRQn_Type FIFO0_IRQ, IRQn_Type FIFO1_IRQ);
 
 int8_t
-HandyCAN_Transmit (uint8_t destination, uint8_t * data, uint8_t len);
+HandyCAN_transmit (uint8_t destination, uint8_t * data, uint8_t len);
 
 int8_t
 HandyCAN_decodeCanRxMsg (CanRxMsg* rx_msg, struct HandyCAN_package* package);
 
-
 int8_t
-HandyCAN_canTransmit (void);
+HandyCAN_remainingMailboxes (void);
 
 int8_t
 HandyCAN_isTransmitting (void);
-
-
 
 //For debug only
 void
