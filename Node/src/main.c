@@ -38,7 +38,7 @@ USB_LP_CAN1_RX0_IRQHandler (void)
   trace_printf ("Received message from %#x: %u\n", package.source_adress,
 		package.data[0]);
 
-  for (uint8_t i = 0; i < package.len; i++)
+  for (uint8_t i = 1; i < package.len; i++)
     trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
 
   GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
@@ -59,7 +59,7 @@ CAN1_RX1_IRQHandler (void)
   trace_printf ("Received BROADCAST from %#x: %u\n", package.source_adress,
 		package.data[0]);
 
-  for (uint8_t i = 0; i < package.len; i++)
+  for (uint8_t i = 1; i < package.len; i++)
     trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
 }
 
@@ -99,8 +99,8 @@ main (void)
 		 CAN1_RX1_IRQn);
 
   // test data
-  data[0] = 0x00;
-  data[1] = 0x12;
+  data[0] = 128; //intent byte
+  data[1] = 0x00;
   data[2] = 0x22;
   data[3] = 0x32;
   data[4] = 0x42;
@@ -114,11 +114,11 @@ main (void)
     {
       trace_printf ("Available: %u\n", HandyCAN_remainingMailboxes ());
 
-      data[0]++;
+      data[1]++;
       HandyCAN_transmit (0x0F, data, 4);
 
-      data[0]++;
-      HandyCAN_transmit (HC_BROADCAST_ADDR, data, 1);
+      data[1]++;
+      HandyCAN_transmit (HC_BROADCAST_ADDR, data, 2);
       trace_printf ("Available: %u\n", HandyCAN_remainingMailboxes ());
 
       delayUs (3000 * 1000);

@@ -160,18 +160,18 @@ HandyCAN_decodeCanRxMsg (CanRxMsg* rx_msg, struct HandyCAN_package* package)
 int8_t
 HandyCAN_remainingMailboxes (void)
 {
-  uint8_t transmit_mailbox;
+  uint8_t transmit_mailbox_remaining;
 
   if ((handycan.CANx->TSR & CAN_TSR_TME0) == CAN_TSR_TME0)
-    transmit_mailbox = 3;
+    transmit_mailbox_remaining = 3;
   else if ((handycan.CANx->TSR & CAN_TSR_TME1) == CAN_TSR_TME1)
-    transmit_mailbox = 2;
+    transmit_mailbox_remaining = 2;
   else if ((handycan.CANx->TSR & CAN_TSR_TME2) == CAN_TSR_TME2)
-    transmit_mailbox = 1;
+    transmit_mailbox_remaining = 1;
   else
-    transmit_mailbox = 0;
+    transmit_mailbox_remaining = 0;
 
-  return transmit_mailbox;
+  return transmit_mailbox_remaining;
 
 }
 
@@ -188,8 +188,8 @@ HandyCAN_transmit (uint8_t destination, uint8_t data[], uint8_t len)
   uint8_t mailbox;
 
   // Construct the message to be sent
+  // The ID is
   TxMessage.StdId = destination | (handycan.local_address << HC_SRC_OFFSET);
-  //trace_printf ("StdId: %#x\n", TxMessage.StdId);
   TxMessage.ExtId = 0;
   TxMessage.RTR = CAN_RTR_DATA;
   TxMessage.IDE = CAN_ID_STD;
