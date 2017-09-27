@@ -1,6 +1,6 @@
-#Protocol Documentation
+## Protocol Documentation
 
-#CAN ID: Addressing.
+### CAN ID: Addressing
 HandyCAN uses the normal 11-bit CAN ID mode, allowing for 29 unique node addresses.  
 With some modification it is possible to change this to 29 bit id, allowing for 16 381 nodes!  
 
@@ -15,7 +15,7 @@ Special addresses
 0x00: reserved/interlink node  
 0x1F: broadcast  
 
-#Data (8 byte)  
+### Data (8 byte)  
 The first data byte is the intent byte.  
 This specifies the purpose of the package and allows the recieving node  
 to determine what the following 7 data bytes contain.  
