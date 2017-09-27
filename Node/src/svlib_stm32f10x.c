@@ -1,7 +1,6 @@
 /**
  * @file    svlib_stm32f10x.c
  * @author  SirVolta
- * @ide     Emacs
  * @date    Mar 1, 2016
  * @brief   SirVolta's library
  */
@@ -46,7 +45,7 @@
 
 /*!
  @brief  converts seconds to days, hours, minutes and seconds
- @param[in,out] time_types pointer with seconds initialized
+ @param[in,out] tim time_types pointer with seconds initialized
  @note 86400 is amount of seconds in one day
  */
 void

@@ -1,0 +1,4 @@
+<map id="HandyCAN_dumpRxPackage" name="HandyCAN_dumpRxPackage">
+<area shape="rect" id="node2" href="$main_8c.html#aa1a82ca3e49421333b17a4ec6996d03d" title="Called when broadcast package is received. " alt="" coords="288,5,460,32"/>
+<area shape="rect" id="node3" href="$main_8c.html#af57bde854fa2b396f29664995a502b19" title="Called when package addressed to us is received. " alt="" coords="260,56,488,83"/>
+</map>

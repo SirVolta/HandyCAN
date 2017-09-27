@@ -1,7 +1,6 @@
 /**
  * @file    HandyCAN.h
  * @author  SirVolta
- * @ide     Emacs
  * @date    Sep 18, 2017
  * @brief   HandyCAN node library
  * @note    Function descriptions are in source file
@@ -28,24 +27,41 @@
 #define HANDYCAN_H_
 #include "stm32f10x_conf.h"
 
+/// The current version of handycan
+#define HC_VERSION 1
+
+/// Destination address mask
 #define HC_DEST_MASK 0x1F
 
+/// Source address mask
 #define HC_SRC_MASK 0x3E0
+/// Source address offset
 #define HC_SRC_OFFSET 5
 
+/// Reserved ID bit
 #define HC_RESERVED_BIT 0x400
+/// Reserved ID bit offset
 #define HC_RESERVED_BIT_OFFSET 10
 
+///HandyCAN broadcast address
 #define HC_BROADCAST_ADDR 0x1F
 
+///CAN transmit timeout (unused at the moment)
 #define HC_CAN_SEND_TIMEOUT 0xFFFFF
+
+/// If this is set to 1, statistsics are kept
+#define HC_KEEP_STATISTICS 1
 
 /// @brief local state and configuration info
 struct HandyCAN_package
 {
+  /// Destination address
   uint8_t dest_adress;
+  /// Source address
   uint8_t source_adress;
+  /// Data length
   uint8_t len;
+  /// Data array
   uint8_t data[8];
 };
 
@@ -64,6 +80,15 @@ HandyCAN_remainingMailboxes (void);
 
 int8_t
 HandyCAN_isTransmitting (void);
+
+uint64_t
+HandyCAN_sentPackets (void);
+
+uint64_t
+HandyCAN_recievedPackets (void);
+
+uint64_t
+HandyCAN_failCount (void);
 
 //For debug only
 void

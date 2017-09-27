@@ -1,3 +1,11 @@
+/**
+ * @file    _write.c
+ * @author  Liviu Ionescu
+ * @date    Mar 1, 2016
+ * @brief   This file is part of the uOS++ distribution
+ * @note    For freestanding applications this file is not used and can be safely ignored.
+ */
+
 /*
  * This file is part of the uOS++ distribution.
  *   (https://github.com/micro-os-plus)

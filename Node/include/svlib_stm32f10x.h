@@ -32,7 +32,7 @@
 
 
 /*!
- @brief DWT clock cycles. Usefull for timing execution.
+ @brief DWT clock cycles. Useful for timing execution.
  @section Time timer Example
  @code
  uint32_t start, end;

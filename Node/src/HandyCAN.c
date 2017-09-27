@@ -1,7 +1,6 @@
 /**
  * @file    HandyCAN.c
  * @author  SirVolta
- * @ide     Emacs
  * @date    Sep 18, 2017
  * @brief   HandyCAN node library
  * @note    ...
@@ -34,28 +33,35 @@
  * Global variables are prohibited. There is a static config struct for this.
  * All functions that could possibly have something go wrong need to return int8_t
  * with an error condition. Variable IO has to be done using pointers.
- *
  */
+
 #include <string.h>
 #include "stm32f10x_conf.h"
 #include "svlib_stm32f10x.h"
 #include "HandyCAN.h"
 
-/* CAN Mailbox Transmit Request */
+///CAN Mailbox Transmit Request
 #define TMIDxR_TXRQ  ((uint32_t)0x00000001)
 
-
-/// @brief local state and configuration info
+///@brief local state and configuration info
 static struct HandyCAN_config
 {
+  ///Address of this node
   uint8_t local_address;
+  ///CAN peripheral to use
   CAN_TypeDef* CANx;
+#if HC_KEEP_STATISTICS
+  uint64_t tx_packets, rx_packets, failures;
+#endif
 } handycan;
 
 /*!
  @brief  Initializes handyCAN to a specific CAN peripheral
  @param[in,out] CANx the can peripheral to use
- @param[in] CAN_Mode mode t initialize the CAN peripheral into
+ @param[in] local_addr the address of this node
+ @param[in] CAN_Mode mode to initialize the CAN peripheral into
+ @param[in] FIFO0_IRQ interrupt channel of own address FIFO.
+ @param[in] FIFO1_IRQ interrupt channel of broadcast FIFO.
  @note Takes over full access of the CAN peripheral. GPIO setup is to be done in user application. If using CAN2, change the interrupt function names accordingly.
  @return 0: ok,
  @todo Error handling, check can init
@@ -69,15 +75,20 @@ HandyCAN_init (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
   CAN_FilterInitTypeDef CAN_FilterInitStruct;
 
   assert_param(IS_CAN_ALL_PERIPH(CANx));
-  //Address must be in between 0x01 and 0x1E (2 and 30), 28 possible.
+  //Address must be in between 0x01 and 0x1E (1 and 30), 29 possible.
   assert_param(local_addr < 0x1F);
   assert_param(local_addr != 0x1F);
-  assert_param(local_addr != 0x00);
   assert_param(local_addr != 0x00);
   assert_param(IS_CAN_MODE(CAN_Mode));
 
   handycan.CANx = CANx;
   handycan.local_address = local_addr;
+
+#if HC_KEEP_STATISTICS
+  handycan.tx_packets = 0;
+  handycan.rx_packets = 0;
+  handycan.failures = 0;
+#endif
 
   //Configure the CAN
   CAN_DeInit(handycan.CANx);
@@ -151,39 +162,44 @@ HandyCAN_init (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
  @param[in] FIFONumber Which FIFO to read
  @param[out] package output HandyCAN package
  @note Parts taken from MCD library
- @return 0: ok,
+ @return 0: ok, -1 error, -2 non handyCAN message
  @todo Error handling, improve reading data from RDxR register
  */
 inline int8_t
 HandyCAN_recievePackage (uint8_t FIFONumber, struct HandyCAN_package* package)
 {
-
-  uint32_t StdId; /*!< Specifies the standard identifier.
-   This parameter can be a value between 0 to 0x7FF. */
-
-  uint8_t IDE; /*!< Specifies the type of identifier for the message that
-   will be received. This parameter can be a value of
-   @ref CAN_identifier_type */
-
-  /*!< Specifies the type of frame for the received message.
-   This parameter can be a value of
-   @ref CAN_remote_transmission_request */
+  // The standard identifier. This is between 0 and 0x7FF and will contain addressing data
+  uint32_t StdId;
+  // The type of identifier for the message being received.
+  // HandyCAN only uses the standard ID
+  uint8_t IDE;
+  //Type of frame for the recieved message, CAN_remote_transmission_request
   //uint8_t RTR;
-  /*!< Specifies the index of the filter the message stored in
-   the mailbox passes through. This parameter can be a
-   value between 0 to 0xFF */
+  //The index of the filter that was used to match this message. Can be 0 to 0xFF
   //uint8_t FMI;
+
   assert_param(IS_CAN_FIFO(FIFONumber));
 
+  ///HandyCAN only uses the standard ID.
   IDE = (uint8_t) 0x04 & handycan.CANx->sFIFOMailBox[FIFONumber].RIR;
-  assert_param(IDE == CAN_Id_Standard);
+  if (IDE != CAN_Id_Standard)
+    {
+#if HC_KEEP_STATISTICS
+      handycan.failures++;
+#endif
+      return -2;
+    }
   StdId = (uint32_t) 0x000007FF
       & (handycan.CANx->sFIFOMailBox[FIFONumber].RIR >> 21);
 
+  //These are not used at the moment
   //FMI = (uint8_t) 0xFF & (handycan.CANx->sFIFOMailBox[FIFONumber].RDTR >> 8);
   //RTR = (uint8_t) 0x02 & handycan.CANx->sFIFOMailBox[FIFONumber].RIR;
+
+  //Get the package data length
   package->len = (uint8_t) 0x0F & handycan.CANx->sFIFOMailBox[FIFONumber].RDTR;
 
+  //Retrieve the data. TODO: optimize this.
   package->data[0] = (uint8_t) 0xFF
       & handycan.CANx->sFIFOMailBox[FIFONumber].RDLR;
   package->data[1] = (uint8_t) 0xFF
@@ -201,15 +217,21 @@ HandyCAN_recievePackage (uint8_t FIFONumber, struct HandyCAN_package* package)
   package->data[7] = (uint8_t) 0xFF
       & (handycan.CANx->sFIFOMailBox[FIFONumber].RDHR >> 24);
 
+  //Release the FIFO mailbox
   if (FIFONumber == CAN_FIFO0)
     handycan.CANx->RF0R |= CAN_RF0R_RFOM0;
   else
     handycan.CANx->RF1R |= CAN_RF1R_RFOM1;
 
+  // Decode the addresses
+  // Again STDID first 5 bits destination address, then 5 bits source addr, then 1 reserved
   package->source_adress = (StdId & HC_SRC_MASK) >> HC_SRC_OFFSET;
   package->dest_adress = StdId & HC_DEST_MASK;
 
-  //memcpy(package->data, rx_msg->Data, rx_msg->DLC);
+#if HC_KEEP_STATISTICS
+  handycan.rx_packets++;
+#endif
+
   return 0;
 }
 
@@ -237,7 +259,10 @@ HandyCAN_remainingMailboxes (void)
 }
 
 /*!
- @brief Transmit a handican package
+ @brief Transmit a handycan package
+ @param destination: Address to transmit package to
+ @param data: data to transmit to destination
+ @param len: Length of data. Must be in between 1 and 8.
  @note Queues message for transmit. Transmits as soon as older packages are sent.
  @note Parts taken from MCD library
  @return 0: transmit queued. -1: no mailboxes available, -2:
@@ -246,17 +271,19 @@ HandyCAN_remainingMailboxes (void)
 int8_t
 HandyCAN_transmit (uint8_t destination, uint8_t data[], uint8_t len)
 {
-  //CanTxMsg TxMessage;
   uint32_t StdId;
   uint8_t transmit_mailbox = 0;
+
+  assert_param(destination <= 0x1F);
+  assert_param(len <= 8);
+  assert_param(len > 0);
 
   // The ID is first 5 bits of destination address,
   // then 5 bits of source address ending with 1 bit reserved
   StdId = destination | (handycan.local_address << HC_SRC_OFFSET);
   assert_param(IS_CAN_STDID(StdId));
-  //mailbox = CAN_Transmit(CAN1, &TxMessage);
 
-  /* Select one empty transmit mailbox */
+  // Select one empty transmit mailbox
   if ((handycan.CANx->TSR & CAN_TSR_TME0) == CAN_TSR_TME0)
     transmit_mailbox = 0;
   else if ((handycan.CANx->TSR & CAN_TSR_TME1) == CAN_TSR_TME1)
@@ -269,18 +296,18 @@ HandyCAN_transmit (uint8_t destination, uint8_t data[], uint8_t len)
 
   if (transmit_mailbox != CAN_TxStatus_NoMailBox)
     {
-      ///Stop transmission
+      // Clear any old transmit request
       handycan.CANx->sTxMailBox[transmit_mailbox].TIR &= TMIDxR_TXRQ;
-      ///Setup the StdId (address) field
+      // Setup the StdId (address) field
       handycan.CANx->sTxMailBox[transmit_mailbox].TIR |= ((StdId << 21) |
       CAN_RTR_DATA);
 
-      //Setup the DLC (length) field
+      // Setup the DLC (length) field
       len &= (uint8_t) 0x0000000F;
       handycan.CANx->sTxMailBox[transmit_mailbox].TDTR &= (uint32_t) 0xFFFFFFF0;
       handycan.CANx->sTxMailBox[transmit_mailbox].TDTR |= len;
 
-      //setup the output data registers
+      // setup the output data registers
       handycan.CANx->sTxMailBox[transmit_mailbox].TDLR = (((uint32_t) data[3]
 	  << 24) | ((uint32_t) data[2] << 16) | ((uint32_t) data[1] << 8)
 	  | ((uint32_t) data[0]));
@@ -288,12 +315,21 @@ HandyCAN_transmit (uint8_t destination, uint8_t data[], uint8_t len)
 	  << 24) | ((uint32_t) data[6] << 16) | ((uint32_t) data[5] << 8)
 	  | ((uint32_t) data[4]));
 
-      //start tranmission
+      // start tranmission
       handycan.CANx->sTxMailBox[transmit_mailbox].TIR |= TMIDxR_TXRQ;
     }
 
   if (transmit_mailbox == CAN_TxStatus_NoMailBox)
-    return -1;
+    {
+#if HC_KEEP_STATISTICS
+      handycan.failures++;
+#endif
+      return -1;
+    }
+
+#if HC_KEEP_STATISTICS
+  handycan.tx_packets++;
+#endif
 
   return 0;
 }
@@ -313,8 +349,53 @@ HandyCAN_isTransmitting (void)
 }
 
 /*!
+ @brief returns the amount of packages sent since init
+ @note returns 0 if statistics are disabled. Set #HC_KEEP_STATISTICS to 1 if required
+ @return amount of packages sent, 0 if disabled
+ */
+uint64_t
+HandyCAN_sentPackets (void)
+{
+#if HC_KEEP_STATISTICS
+  return handycan.tx_packets;
+#else
+  return 0;
+#endif
+}
+
+/*!
+ @brief returns the amount of packages received since init
+ @note returns 0 if statistics are disabled. Set #HC_KEEP_STATISTICS to 1 if required
+ @return amount of packages received, 0 if disabled
+ */
+uint64_t
+HandyCAN_recievedPackets (void)
+{
+#if HC_KEEP_STATISTICS
+  return handycan.rx_packets;
+#else
+  return 0;
+#endif
+}
+
+/*!
+ @brief returns the failures since init
+ @note returns 0 if statistics are disabled. Set #HC_KEEP_STATISTICS to 1 if required
+ @return amount of failures, 0 if disabled
+ */
+uint64_t
+HandyCAN_failCount (void)
+{
+#if HC_KEEP_STATISTICS
+  return handycan.failures;
+#else
+  return 0;
+#endif
+}
+
+/*!
  @brief For debug. Dumps a received HandyCAN Packet to STDOUT
- @param [in] rx_msg: incoming can message to dump
+ @param [in] package: incoming handyCAN package to dump
  */
 void
 HandyCAN_dumpRxPackage (struct HandyCAN_package* package)

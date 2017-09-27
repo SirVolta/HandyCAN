@@ -1,3 +1,11 @@
+/**
+ * @file    stm32f10x_conf.h
+ * @author  SirVolta
+ * @date    Mar 1, 2014
+ * @brief   STM32 configuration file
+ * @note    COPYRIGHT 2011 STMicroelectronics
+ */
+
 #ifndef __STM32F10x_CONF_H
 #define __STM32F10x_CONF_H
 
@@ -53,5 +61,3 @@ assert_failed (uint8_t* file, uint32_t line);
 //#define  VECT_TAB_SRAM
 
 #endif /* __STM32F10x_CONF_H */
-
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

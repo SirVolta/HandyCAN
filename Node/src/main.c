@@ -1,3 +1,10 @@
+/**
+ * @file    main.c
+ * @author  SirVolta
+ * @date    Sep 18, 2017
+ * @brief   HandyCAN node library test
+ * @note    Test and basic loopback demo of HandyCAN
+ */
 /*
  Copyright (C) 2017 Pelle Sepp Florens Jansen
 
@@ -17,11 +24,36 @@
  along with HandyCAN.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*! \mainpage HandyCAN Node library and loopback demo
+ *
+ * \section intro_sec Introduction
+ *
+ * This is the HandyCAN node library.\n
+ * To build a handyCAN node, include the HandyCAN.c and HandyCAN.h files into your project.\n
+ *
+ * HandyCAN is Copyright (C) 2017 Pelle Sepp Florens Jansen
+ * and is free software under the terms of the GNU General Public License v3
+ *
+ *
+ * \section nav_sec Navigation
+ * If you are building a node, see HandyCAN.h for the library reference.\n
+ * A loopback example is in main.c. For more comprehensive examples please see the github examples page.\n
+ * To check for still unfinished components, please check the todo list under related pages.\n
+ *
+ * \see https://github.com/SirVolta/HandyCAN/tree/master/examples
+ *
+ *
+ */
+
 #include "stm32f10x_conf.h"
 #include "svlib_stm32f10x.h"
 #include "HandyCAN.h"
 //#include <stdio.h>
 //#include <stdlib.h>
+
+#define INTENT_NODE_UPTIME 111
+
+uint64_t systick_ms = 0;
 
 /*!
  @brief Called when package addressed to us is received
@@ -51,11 +83,19 @@ CAN1_RX1_IRQHandler (void)
   HandyCAN_dumpRxPackage(&package);
 }
 
+extern void
+SysTick_Handler (void)
+{
+ systick_ms++;
+}
+
+
 int
 main (void)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
   uint8_t data[8];
+  struct time_types uptime;
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
@@ -81,32 +121,44 @@ main (void)
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  //SysTick timer
+  SysTick_CLKSourceConfig (SysTick_CLKSource_HCLK);
+  SysTick_Config (SystemCoreClock / 1000);
+  SystemCoreClockUpdate ();
+  systick_ms = 0;
+
   initDWT();
   //Init handycan: CAN1, our address is 0x0F, loopback mode for testing, CAN1 interrupts.
-  HandyCAN_init(CAN1, 0x0F, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn,
+  HandyCAN_init(CAN1, 0x0A, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn,
 		CAN1_RX1_IRQn);
 
   // test data
-  data[0] = 128; //intent byte
-  data[1] = 0x00;
-  data[2] = 0x22;
-  data[3] = 0x32;
-  data[4] = 0x42;
-  data[5] = 0x52;
-  data[6] = 0x62;
-  data[7] = 0x72;
+  data[5] = 0;   // counter byte
 
   trace_puts("HandyCAN Ready");
 
+
   while (1)
     {
+      /// Place the system uptime in the data bytes as a example
+      uptime.seconds = (uint32_t) (systick_ms / 1000);
+      secondsToTime(&uptime);
+      data[0] = INTENT_NODE_UPTIME;
+      data[1] = uptime.seconds;
+      data[2] = uptime.minutes;
+      data[3] = uptime.hours;
+      data[4] = uptime.days;
+      data[5]++;
+
+      /// There should be 3 mailboxes avaliable
       trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
-      data[1]++;
-      HandyCAN_transmit(0x0F, data, 4);
+      /// Transmit data to ourself, then increment the counter,
+      /// And broadcast everything but the days.
+      HandyCAN_transmit(0x0A, data, 6);
+      data[4] = ++data[5];
+      HandyCAN_transmit(HC_BROADCAST_ADDR, data, 5);
 
-      data[1]++;
-      HandyCAN_transmit(HC_BROADCAST_ADDR, data, 2);
       trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
       delayUs(3000 * 1000);

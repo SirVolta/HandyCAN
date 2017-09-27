@@ -1,0 +1,8 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$svlib__stm32f10x_8c.html#aeb4f5bbfd19415491d7af00ed03440ad" title="Holds up execution by n microseconds to maximum 52 seconds. Reqiures DWT to be initialized. " alt="" coords="186,5,261,32"/>
+<area shape="rect" id="node3" href="$HandyCAN_8c.html#a5d90e8f6f4ebe4f190c2ece58e8b7f59" title="Initializes handyCAN to a specific CAN peripheral. " alt="" coords="163,56,283,83"/>
+<area shape="rect" id="node4" href="$HandyCAN_8c.html#a27f95fb5aa461b6407ea3495ed520676" title="Check how many mailboxes there are available. " alt="" coords="108,107,339,133"/>
+<area shape="rect" id="node5" href="$HandyCAN_8c.html#a131c14ef51f5dd23f1c0020ecd7d107c" title="Transmit a handycan package. " alt="" coords="146,157,301,184"/>
+<area shape="rect" id="node6" href="$svlib__stm32f10x_8c.html#ae86797cd5a13dc0861160498b1aa5f9d" title="Initializes Data Watchpoint and Trace Registers (DWT) processor cycle counter. Usually, this is already done by uOS clock init and is not required. " alt="" coords="186,208,261,235"/>
+<area shape="rect" id="node7" href="$svlib__stm32f10x_8c.html#ac554a84343dd233398e605c3da2c7847" title="converts seconds to days, hours, minutes and seconds " alt="" coords="162,259,285,285"/>
+</map>
