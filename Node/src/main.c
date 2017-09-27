@@ -66,7 +66,8 @@ USB_LP_CAN1_RX0_IRQHandler (void)
 
   HandyCAN_recievePackage(CAN_FIFO0, &package);
   HandyCAN_dumpRxPackage(&package);
-  GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
+  if (package.data[0] == 2)
+    GPIO_WriteBit(GPIOC, GPIO_Pin_13, package.data[1]);
 }
 
 /*!
@@ -129,7 +130,7 @@ main (void)
 
   initDWT();
   //Init handycan: CAN1, our address is 0x0F, loopback mode for testing, CAN1 interrupts.
-  HandyCAN_init(CAN1, 0x0A, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn,
+  HandyCAN_init(CAN1, 0x0A, CAN_Mode_Normal, USB_LP_CAN1_RX0_IRQn,
 		CAN1_RX1_IRQn);
 
   // test data
@@ -156,11 +157,21 @@ main (void)
       /// Transmit data to ourself, then increment the counter,
       /// And broadcast everything but the days.
       HandyCAN_transmit(0x0A, data, 6);
-      data[4] = ++data[5];
+
+      delayUs(2500 * 1000);
+
+      uptime.seconds = (uint32_t) (systick_ms / 1000);
+      secondsToTime(&uptime);
+      data[0] = INTENT_NODE_UPTIME;
+      data[1] = uptime.seconds;
+      data[2] = uptime.minutes;
+      data[3] = uptime.hours;
+      data[4] = data[5]++;
+
       HandyCAN_transmit(HC_BROADCAST_ADDR, data, 5);
 
       trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
-      delayUs(3000 * 1000);
+      delayUs(2500 * 1000);
     }
 }
