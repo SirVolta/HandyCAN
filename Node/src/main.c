@@ -30,17 +30,10 @@
 extern void
 USB_LP_CAN1_RX0_IRQHandler (void)
 {
-  CanRxMsg rx_message;
   struct HandyCAN_package package;
 
-  CAN_Receive (CAN1, CAN_FIFO0, &rx_message);
-  HandyCAN_decodeCanRxMsg (&rx_message, &package);
-  trace_printf ("Received message from %#x: %u\n", package.source_adress,
-		package.data[0]);
-
-  for (uint8_t i = 1; i < package.len; i++)
-    trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
-
+  HandyCAN_recievePackage(CAN_FIFO0, &package);
+  HandyCAN_dumpRxPackage(&package);
   GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
 }
 
@@ -51,16 +44,11 @@ USB_LP_CAN1_RX0_IRQHandler (void)
 extern void
 CAN1_RX1_IRQHandler (void)
 {
-  CanRxMsg rx_message;
   struct HandyCAN_package package;
 
-  CAN_Receive (CAN1, CAN_FIFO1, &rx_message);
-  HandyCAN_decodeCanRxMsg (&rx_message, &package);
-  trace_printf ("Received BROADCAST from %#x: %u\n", package.source_adress,
-		package.data[0]);
-
-  for (uint8_t i = 1; i < package.len; i++)
-    trace_printf ("Data[%u]: %#x %u\n", i, package.data[i], package.data[i]);
+  trace_puts("BCast");
+  HandyCAN_recievePackage(CAN_FIFO1, &package);
+  HandyCAN_dumpRxPackage(&package);
 }
 
 int
@@ -69,34 +57,34 @@ main (void)
   GPIO_InitTypeDef GPIO_InitStruct;
   uint8_t data[8];
 
-  RCC_APB2PeriphClockCmd (RCC_APB2Periph_GPIOA, ENABLE);
-  RCC_APB2PeriphClockCmd (RCC_APB2Periph_GPIOB, ENABLE);
-  RCC_APB2PeriphClockCmd (RCC_APB2Periph_GPIOC, ENABLE);
-  RCC_APB2PeriphClockCmd (RCC_APB2Periph_AFIO, ENABLE);
-  RCC_APB1PeriphClockCmd (RCC_APB1Periph_CAN1, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
 
   // Configure CAN pin: A11: RX
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init (GPIOA, &GPIO_InitStruct);
+  GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   // Configure CAN pin: A12: TX
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init (GPIOA, &GPIO_InitStruct);
+  GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   // onboard led
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_13;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_OD;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init (GPIOC, &GPIO_InitStruct);
+  GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  initDWT ();
+  initDWT();
   //Init handycan: CAN1, our address is 0x0F, loopback mode for testing, CAN1 interrupts.
-  HandyCAN_init (CAN1, 0x0F, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn,
-		 CAN1_RX1_IRQn);
+  HandyCAN_init(CAN1, 0x0F, CAN_Mode_LoopBack, USB_LP_CAN1_RX0_IRQn,
+		CAN1_RX1_IRQn);
 
   // test data
   data[0] = 128; //intent byte
@@ -108,19 +96,19 @@ main (void)
   data[6] = 0x62;
   data[7] = 0x72;
 
-  trace_puts ("HandyCAN Ready");
+  trace_puts("HandyCAN Ready");
 
   while (1)
     {
-      trace_printf ("Available: %u\n", HandyCAN_remainingMailboxes ());
+      trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
       data[1]++;
-      HandyCAN_transmit (0x0F, data, 4);
+      HandyCAN_transmit(0x0F, data, 4);
 
       data[1]++;
-      HandyCAN_transmit (HC_BROADCAST_ADDR, data, 2);
-      trace_printf ("Available: %u\n", HandyCAN_remainingMailboxes ());
+      HandyCAN_transmit(HC_BROADCAST_ADDR, data, 2);
+      trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
-      delayUs (3000 * 1000);
+      delayUs(3000 * 1000);
     }
 }

@@ -57,7 +57,7 @@ int8_t
 HandyCAN_transmit (uint8_t destination, uint8_t * data, uint8_t len);
 
 int8_t
-HandyCAN_decodeCanRxMsg (CanRxMsg* rx_msg, struct HandyCAN_package* package);
+HandyCAN_recievePackage (uint8_t FIFONumber, struct HandyCAN_package* package);
 
 int8_t
 HandyCAN_remainingMailboxes (void);
@@ -66,6 +66,8 @@ int8_t
 HandyCAN_isTransmitting (void);
 
 //For debug only
+void
+HandyCAN_dumpRxPackage (struct HandyCAN_package* package);
 void
 HandyCAN_dumpCanRxMessage (CanRxMsg* rx_msg);
 
