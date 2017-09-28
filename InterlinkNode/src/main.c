@@ -63,8 +63,20 @@
 ///Toggles a IO pin.
 #define GPIO_ToggleBits(GPIOx, GPIO_Pin) GPIO_WriteBit(GPIOx, GPIO_Pin, !GPIO_ReadOutputDataBit(GPIOx, GPIO_Pin));
 
-///Buffer. Way oversized. Can never be more than 15 large.
-uint8_t buf[80];
+#define STARTSYNCBYTE1 0xF0
+#define STARTSYNCBYTE2 0xFA
+#define ENDSYNCBYTE1  0xE0
+#define ENDSYNCBYTE2  0xEF
+#define LENIDX 2
+#define CHECKLENIDX 3
+#define STDIDLIDX 4
+#define STDIDHIDX 5
+#define DATAIDX 6
+
+
+
+
+
 
 static struct CANMessageToSend
 {
@@ -102,6 +114,9 @@ sendCANMessage (void)
   uint8_t shiftloc = 0;
   uint8_t check;
   uint8_t i;
+
+  ///Buffer. Way oversized. Can never be more than 15 large.
+  static uint8_t buf[80];
   // 0 and 1 indicates start of frame
   buf[0] = 0xF0;
   buf[1] = 0xFA;
@@ -111,13 +126,17 @@ sendCANMessage (void)
   // it will never come close to being a sync byte and we can skip checking this
   buf[2] = len;
 
+  // 3 is check length
+  // it also will never exceed 0xE0
+  buf[3] = 0;
+
   // 2 and 3 is StdId
-  buf[3] = (uint8_t) (messageToSend.message.StdId & 0xFF);
-  buf[4] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
+  buf[4] = (uint8_t) (messageToSend.message.StdId & 0xFF);
+  buf[5] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
 
   // next comes the data, [5 .. len]
-  for (i = 5; i < len + 5; i++)
-    buf[i] = messageToSend.message.Data[i - 5];
+  for (i = 6; i < len + 6; i++)
+    buf[i] = messageToSend.message.Data[i - 6];
   /*
    i=5;
    buf[i++] = 0xF0;
@@ -143,6 +162,7 @@ sendCANMessage (void)
 	  //      	 buf[check], buf[check] + 1);
 	  buf[check]++;
 	  shift[shiftloc++] = check;
+	  buf[3]++;
 	}
     }
 
@@ -163,8 +183,102 @@ sendCANMessage (void)
     }
 }
 
+extern void
+USART1_IRQHandler (void)
+{
+  uint8_t incoming;
+  uint8_t len;
+  uint8_t checklen;
+  uint8_t checkbytes_start;
+  CanTxMsg TxMessage;
+  /// uart buffer
+  static uint8_t uartbuf[80];
+  static uint8_t previous = '\0';
+  static uint8_t bufloc = 0;
+
+  //trace_puts("irq.");
+
+  if (USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
+    {
+      USART_ClearITPendingBit(USART1, USART_IT_TXE);
+    }
+
+  if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+    {
+      incoming = (char) USART_ReceiveData(USART1);
+      USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+
+      // beginning of the message
+      if (incoming == 0xFA)
+	{
+	  if (previous == 0xF0)
+	    {
+	      bufloc = 1;
+	      uartbuf[0] = previous;
+	    }
+	}
+      // end of the message
+      // beginning of the message
+      if (incoming == 0xEF)
+	{
+	  if (previous == 0xE0)
+	    {
+	      uartbuf[bufloc] = incoming;
+	      // message is ready
+	      // first, verify
+	      if (uartbuf[0] != STARTSYNCBYTE1 || uartbuf[1] != STARTSYNCBYTE2)
+		{
+		  trace_printf("not a valid handycan message: invalid header: "
+		      "%#x %#x\n", uartbuf[0], uartbuf[1]);
+		  return;
+		}
+	      if (uartbuf[bufloc - 1] != ENDSYNCBYTE1 || uartbuf[bufloc] != ENDSYNCBYTE2)
+		{
+		  trace_printf("not a valid handycan message: invalid footer: "
+		      	     "%#x %#x\n", uartbuf[bufloc -1], uartbuf[bufloc]);
+		  return;
+		}
+
+	      len = uartbuf[LENIDX];
+	      if ((8 + len + uartbuf[CHECKLENIDX]) != bufloc+1)
+		{
+		  trace_printf("Message size invalid!\n"
+		      "expected %u got %u\n", 8 + len + uartbuf[CHECKLENIDX], bufloc+1);
+		  return;
+		}
+
+	      checklen = uartbuf[CHECKLENIDX];
+	      if (checklen)
+		{
+		  checkbytes_start = 6 + len;
+		  // increment them
+		  for (uint8_t i=0; i<checklen; i++)
+		    {
+		      uartbuf[ uartbuf[checkbytes_start+i] ]++;
+		    }
+		}
 
 
+		TxMessage.StdId = uartbuf[STDIDLIDX] | (uartbuf[STDIDHIDX] << 8);
+	        TxMessage.ExtId = 0;
+	        TxMessage.RTR = CAN_RTR_DATA;
+	        TxMessage.IDE = CAN_ID_STD;
+	        TxMessage.DLC = len;
+	        for (uint8_t i=0; i<len; i++)
+	          {
+	            TxMessage.Data[i] = uartbuf[DATAIDX + i];
+	          }
+
+	        CAN_Transmit (CAN1, &TxMessage);
+	        //trace_puts("Sent CAN message!");
+
+	      return;
+	    }
+	}
+      uartbuf[bufloc++] = incoming;
+      previous = incoming;
+    }
+}
 
 static void
 CAN_init (void)
@@ -216,8 +330,8 @@ UART_init (void)
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
 
-  USART_InitStructure.USART_BaudRate = 115200;
-  USART_InitStructure.USART_WordLength = USART_WordLength_9b;
+  USART_InitStructure.USART_BaudRate = 1152000;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
   USART_InitStructure.USART_HardwareFlowControl =
@@ -235,7 +349,7 @@ UART_init (void)
 
   // Enable the uart and the uart interrupt
   USART_Cmd(USART1, ENABLE);
-  //Enable recieve interrupt on the CLI uart
+  //Enable recieve interrupt
   NVIC_EnableIRQ(USART1_IRQn);
   //USART_ClearFlag(USART1, USART_FLAG_TC);
   //USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
