@@ -98,31 +98,73 @@ static void
 sendCANMessage (void)
 {
   uint8_t len = messageToSend.message.DLC;
+  uint8_t shift[16]; // holds the index of shifted bytes
+  uint8_t shiftloc = 0;
+  uint8_t check;
   uint8_t i;
   // 0 and 1 indicates start of frame
-  buf[0] = 0xAA;
-  buf[1] = 0xAB;
+  buf[0] = 0xF0;
+  buf[1] = 0xFA;
+
+  // 2 is data length
+  // As it will never exceed 8, let alone 0xE0 (224) in size,
+  // it will never come close to being a sync byte and we can skip checking this
+  buf[2] = len;
+
   // 2 and 3 is StdId
-  buf[2] = (uint8_t) (messageToSend.message.StdId & 0xFF);
-  buf[3] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
-  // 4 is data length
-  buf[4] = len;
-  // next comes the data
+  buf[3] = (uint8_t) (messageToSend.message.StdId & 0xFF);
+  buf[4] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
+
+  // next comes the data, [5 .. len]
   for (i = 5; i < len + 5; i++)
     buf[i] = messageToSend.message.Data[i - 5];
+  /*
+   i=5;
+   buf[i++] = 0xF0;
+   buf[i++] = 0xFA;
+   buf[i++] = 0xAA;
+   buf[i++] = 0xE0;
+   buf[i++] = 0xEF;
+   */
+
+  // To prevent issues with the sync bytes, we must now check
+  // there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEF in them
+  // if so, increment them and store their position.
+  // These positions will be appended to the message so the
+  // Receiver will know to decrement them.
+  // The increment indexes themselves will never be large enough
+  // to come anywhere close to the start and end bytes.
+  for (check = 3; check < i; check++)
+    {
+      if ((buf[check - 1] == 0xF0 && buf[check] == 0xFA)
+	  || (buf[check - 1] == 0xE0 && buf[check] == 0xEF))
+	{
+	  //trace_printf("Injected check for elem %u %#x now %#x\n", check,
+	  //      	 buf[check], buf[check] + 1);
+	  buf[check]++;
+	  shift[shiftloc++] = check;
+	}
+    }
+
+  for (uint8_t checkloc = 0; checkloc < shiftloc; checkloc++)
+    buf[i++] = shift[checkloc];
+
   // and the last two to indicate end
-  buf[i++] = 0xBA;
-  buf[i++] = 0xBB;
+  buf[i++] = 0xE0;
+  buf[i++] = 0xEF;
 
   for (uint8_t j = 0; j < i; j++)
     {
-      while (USART_GetFlagStatus (USART1, USART_FLAG_TC) == RESET);
+      /// TODO: Use DMA for transmit
+      while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+	;
       USART_SendData(USART1, buf[j]);
-      while (USART_GetFlagStatus (USART1, USART_FLAG_TC) == RESET);
       //trace_printf("buf[%u]: %#x, %u\n", j, buf[j], buf[j]);
     }
-
 }
+
+
+
 
 static void
 CAN_init (void)
@@ -175,7 +217,7 @@ UART_init (void)
   NVIC_InitTypeDef NVIC_InitStructure;
 
   USART_InitStructure.USART_BaudRate = 115200;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_WordLength = USART_WordLength_9b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
   USART_InitStructure.USART_HardwareFlowControl =
@@ -268,6 +310,7 @@ main (void)
       if (messageToSend.messageReady)
 	{
 	  sendCANMessage();
+	  //USART_SendData(USART1, 0x1AB);
 	  messageToSend.messageReady = 0;
 	}
       ///Kick the dog

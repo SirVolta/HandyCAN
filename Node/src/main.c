@@ -148,15 +148,17 @@ main (void)
       data[1] = uptime.seconds;
       data[2] = uptime.minutes;
       data[3] = uptime.hours;
-      data[4] = uptime.days;
-      data[5]++;
+      data[4]++;
+      data[5] = 0xE0;
+      data[6] = 0xEB;
+
 
       /// There should be 3 mailboxes avaliable
       trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
       /// Transmit data to ourself, then increment the counter,
       /// And broadcast everything but the days.
-      HandyCAN_transmit(0x0A, data, 6);
+      HandyCAN_transmit(0x0A, data, 7);
 
       delayUs(2500 * 1000);
 
@@ -166,9 +168,11 @@ main (void)
       data[1] = uptime.seconds;
       data[2] = uptime.minutes;
       data[3] = uptime.hours;
-      data[4] = data[5]++;
+      data[4]++;
+      data[5] = 0xF0;
+      data[6] = 0xFA;
 
-      HandyCAN_transmit(HC_BROADCAST_ADDR, data, 5);
+      HandyCAN_transmit(HC_BROADCAST_ADDR, data, 7);
 
       trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
