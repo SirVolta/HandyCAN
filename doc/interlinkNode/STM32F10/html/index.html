@@ -46,22 +46,26 @@ $(function() {
 Introduction</h1>
 <p>This is the HandyCAN interlink node firmware for STM32F10x<br />
 A interlink node serves as a bridge between a PC and the HandyCAN network<br />
-There is no limit to the amount of interlink nodes in a setup<br />
-They are not required.<br />
-If the CAN bus is run at over 500kbaud, the STM32F10 is not powerfull enough to decode all packages.<br />
-When this is required, use the STM32F4 interlink node<br />
+There is no limit to the amount of interlink nodes in a setup and they are not required if PC comms is not needed<br />
+If the CAN bus is run at over 125kbaud, the STM32F10 is not powerful enough to recieve and transmit all packages in realtime.<br />
+But, it can receive OR transmit at a maximum of 500kbaud.<br />
+So if a speed lower then 500k but higher then 125k is required you can use two Interlink nodes: one for receive, one for transmit.<br />
+Connect the UART RX of the pc to the UART TX of the first interlink node connected to the CAN bus<br />
+Connect the UART TX of the PC to the UART RX of the second interlink node connected to the CAN bus<br />
+Also connect A0 of the second interlink node to ground. This indicates that it is PC-&gt;CAN only, and it should not decode incoming can messages<br />
+ If a speed higher then 500k is required, a more powerfull microcontroller like the STM32F4 is needed<br />
+ In the future i might build a STMF4 or better based interlink node that is fast enough to send AND recieve at 1Mbaud.<br />
 <br />
 For simplicity and because the interlink node firmware is not very complex,<br />
 it is entirely implemented in <a class="el" href="main_8c.html" title="HandyCAN interlink node. ">main.c</a>.<br />
  HandyCAN is Copyright (C) 2017 Pelle Sepp Florens Jansen and is free software under the terms of the GNU General Public License v3</p>
 <h1><a class="anchor" id="nav_sec"></a>
 Usage</h1>
-<p>One or more interlink nodes are connected to the CAN bus and, via a fast UART, to the PC.</p>
+<p>One or more interlink nodes are connected to the CAN bus and, via a fast UART, to the PC. If a faster connection (higher then 125kbaud, is needed, use two (2) interlink nodes as described in the introduction)</p>
 <h1><a class="anchor" id="proto_sec"></a>
 Protocol</h1>
 <p>The handyCAN protocol is described here: <a href="https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol">https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol</a> <br />
-Following is a description of the UART protocol between the PC and the interlink node:<br />
-</p>
+The protocol used between interlink node and PC is described here: <a href="https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol/interlink">https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol/interlink</a></p>
 <dl class="section see"><dt>See also</dt><dd><a href="https://github.com/SirVolta/HandyCAN/tree/master/examples">https://github.com/SirVolta/HandyCAN/tree/master/examples</a> </dd></dl>
 </div></div><!-- contents -->
 <!-- start footer part -->

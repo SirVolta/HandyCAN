@@ -30,11 +30,22 @@
  *
  * This is the HandyCAN interlink node firmware for STM32F10x\n
  * A interlink node serves as a bridge between a PC and the HandyCAN network\n
- * There is no limit to the amount of interlink nodes in a setup\n
- * They are not required.\n
- * If the CAN bus is run at over 500kbaud, the STM32F10 is not powerfull
- * enough to decode all packages.\n
- * When this is required, use the STM32F4 interlink node\n
+ * There is no limit to the amount of interlink nodes in a setup
+ * and they are not required if PC comms is not needed\n
+ * If the CAN bus is run at over 125kbaud, the STM32F10 is not powerful
+ * enough to recieve and transmit all packages in realtime.\n
+ * But, it can receive OR transmit at a maximum of 500kbaud.\n
+ * So if a speed lower then 500k but higher then 125k is required
+ * you can use two Interlink nodes: one for receive, one for transmit.\n
+ * Connect the UART RX of the pc to the UART TX of the first interlink node connected to the CAN bus\n
+ * Connect the UART TX of the PC to the UART RX of the second interlink node connected to the CAN bus\n
+ * Also connect A0 of the second interlink node to ground.
+ * This indicates that it is PC->CAN only, and it should not decode incoming can messages\n
+ *
+ * If a speed higher then 500k is required, a more powerfull microcontroller like the STM32F4 is needed\n
+ *
+ * In the future i might build a STMF4 or better based interlink node
+ * that is fast enough to send AND recieve at 1Mbaud.\n
  * \n
  * For simplicity and because the interlink node firmware is not very complex,\n
  * it is entirely implemented in main.c.\n
@@ -46,10 +57,14 @@
  * \section nav_sec Usage
  * One or more interlink nodes are connected to the CAN bus and,
  * via a fast UART, to the PC.
+ * If a faster connection (higher then 125kbaud, is needed, use two (2) interlink nodes as described in the introduction)
+ *
  *
  * \section proto_sec Protocol
  * The handyCAN protocol is described here: https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol \n
- * Following is a description of the UART protocol between the PC and the interlink node:\n
+ * The protocol used between interlink node and PC is described here: https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol/interlink
+ *
+ *
  *
  *
  *
@@ -85,6 +100,9 @@
 /// Index of start of the data bytes in uart message
 #define DATAIDX 6
 
+/// for debug
+uint32_t overruns = 0;
+
 /// incoming CAN message to send over the UART
 static struct CANMessageToSend
 {
@@ -110,9 +128,11 @@ USB_LP_CAN1_RX0_IRQHandler (void)
       messageToSend.messageReady = 1;
     }
   else
-    trace_puts("Overrun!");
-
-  GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
+    {
+      trace_puts("overrun");
+      //overruns++;
+      GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
+    }
 }
 
 /*!
@@ -123,16 +143,16 @@ USB_LP_CAN1_RX0_IRQHandler (void)
 static inline void
 sendCANMessage (void)
 {
-  /// Length of the data to send
+  // Length of the data to send
   uint8_t len = messageToSend.message.DLC;
-  /// holds the index of shifted bytes
+  // holds the index of shifted bytes
   uint8_t shift[16];
-  /// amount of bytes that have been shifted
+  // amount of bytes that have been shifted
   uint8_t shiftloc = 0;
-  /// current location in the buffer
+  // current location in the buffer
   uint8_t i;
-  ///Buffer. Way oversized. Can never be more than 15 large.
-  static uint8_t buf[80];
+  // Buffer. Way oversized. Can never be more than 15 large.
+  uint8_t buf[80];
   // 0 and 1 indicates start of frame
   buf[0] = STARTSYNCBYTE1;
   buf[1] = STARTSYNCBYTE2;
@@ -153,15 +173,15 @@ sendCANMessage (void)
   for (i = DATAIDX; i < len + DATAIDX; i++)
     buf[i] = messageToSend.message.Data[i - DATAIDX];
 
-  // To prevent issues with the sync bytes, we must now check
-  // there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEF in them
-  // if so, increment them and store their position.
-  // These positions will be appended to the message so the
-  // Receiver will know to decrement them.
-  // The increment indexes themselves will never be large enough
-  // to come anywhere close to the start and end bytes, so
-  // we can safely append this to the output without them becoming
-  // sync bytes
+  /// To prevent issues with the sync bytes, we must now check
+  /// there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEF in them.\n
+  /// if so, increment them and store their position.\n
+  /// These positions will be appended to the message so the
+  /// Receiver will know to decrement them.\n
+  /// The increment indexes themselves will never be large enough
+  /// to come anywhere close to the start and end bytes, so
+  /// we can safely append this to the output without them becoming
+  /// sync bytes.
   for (uint8_t check = 4; check < i; check++)
     {
       if ((buf[check - 1] == STARTSYNCBYTE1 && buf[check] == STARTSYNCBYTE2)
@@ -171,7 +191,7 @@ sendCANMessage (void)
 	  //      	 buf[check], buf[check] + 1);
 	  buf[check]++;
 	  shift[shiftloc++] = check;
-	  buf[3]++;
+	  buf[CHECKLENIDX]++;
 	}
     }
 
@@ -336,29 +356,33 @@ CAN_init (void)
   CAN_InitStruct.CAN_SJW = CAN_SJW_1tq;
   CAN_InitStruct.CAN_BS1 = CAN_BS1_3tq;
   CAN_InitStruct.CAN_BS2 = CAN_BS2_5tq;
-  CAN_InitStruct.CAN_Prescaler = 4; //4: 1M, 8: 500k
+  CAN_InitStruct.CAN_Prescaler = 8; //4: 1M, 8: 500k
   CAN_Init(CAN1, &CAN_InitStruct);
 
   // Set the filter to receive everything into FIFO0
-  CAN_FilterInitStruct.CAN_FilterNumber = 0;
-  CAN_FilterInitStruct.CAN_FilterMode = CAN_FilterMode_IdMask;
-  CAN_FilterInitStruct.CAN_FilterScale = CAN_FilterScale_32bit;
-  CAN_FilterInitStruct.CAN_FilterIdHigh = 0;
-  CAN_FilterInitStruct.CAN_FilterIdLow = 0;
-  CAN_FilterInitStruct.CAN_FilterMaskIdHigh = 0;
-  CAN_FilterInitStruct.CAN_FilterMaskIdLow = 0;
-  CAN_FilterInitStruct.CAN_FilterFIFOAssignment = 0;
-  CAN_FilterInitStruct.CAN_FilterActivation = ENABLE;
-  CAN_FilterInit(&CAN_FilterInitStruct);
+  // but only if A0 is set.
+  if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0))
+    {
+      CAN_FilterInitStruct.CAN_FilterNumber = 0;
+      CAN_FilterInitStruct.CAN_FilterMode = CAN_FilterMode_IdMask;
+      CAN_FilterInitStruct.CAN_FilterScale = CAN_FilterScale_32bit;
+      CAN_FilterInitStruct.CAN_FilterIdHigh = 0;
+      CAN_FilterInitStruct.CAN_FilterIdLow = 0;
+      CAN_FilterInitStruct.CAN_FilterMaskIdHigh = 0;
+      CAN_FilterInitStruct.CAN_FilterMaskIdLow = 0;
+      CAN_FilterInitStruct.CAN_FilterFIFOAssignment = 0;
+      CAN_FilterInitStruct.CAN_FilterActivation = ENABLE;
+      CAN_FilterInit(&CAN_FilterInitStruct);
 
-  //Setup for FIFO0 data
-  NVIC_InitStruct.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
-  NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStruct);
-  CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
-  NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+      //Setup for FIFO0 data, higher priority than UART
+      NVIC_InitStruct.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
+      NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;
+      NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+      NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+      NVIC_Init(&NVIC_InitStruct);
+      CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+      NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+    }
 }
 
 /*!
@@ -408,6 +432,13 @@ GPIO_init (void)
   /// disable JTAG to free up RB3 and RB4
   GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
+  // pin A0: UART transmit and CAN receive enable
+  // checked only once during startup.
+  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOA, &GPIO_InitStruct);
+
   // Configure CAN pin: A11: RX
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
@@ -426,7 +457,7 @@ GPIO_init (void)
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /// uart pins, alternate function
+  // uart pins, alternate function
   GPIO_StructInit(&GPIO_InitStruct);
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;

@@ -103,7 +103,7 @@ HandyCAN_init (CAN_TypeDef* CANx, uint8_t local_addr, uint8_t CAN_Mode,
   CAN_InitStruct.CAN_SJW = CAN_SJW_1tq;
   CAN_InitStruct.CAN_BS1 = CAN_BS1_3tq;
   CAN_InitStruct.CAN_BS2 = CAN_BS2_5tq;
-  CAN_InitStruct.CAN_Prescaler = 4; //4: 1M, 8: 500k
+  CAN_InitStruct.CAN_Prescaler = 8; //4: 1M, 8: 500k
   CAN_Init(handycan.CANx, &CAN_InitStruct);
 
   // Set the filter to receive everything addressed to us into FIFO0
