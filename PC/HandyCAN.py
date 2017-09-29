@@ -28,9 +28,10 @@ class HandyCAN(object):
         self.endsyncbyte1 = 0xE0
         self.endsyncbyte2 = 0xEF
         self.lenidx = 2
-        self.StdIdLidx = 3
-        self.StdIdHidx = 4
-        self.dataidx = 5
+        self.checklenidx = 3
+        self.StdIdLidx = 4
+        self.StdIdHidx = 5
+        self.dataidx = 6
         self.sourceoffset = 5
         self.own_address = own_address
         
@@ -54,6 +55,7 @@ class HandyCAN(object):
         pack.dest = dest
         pack.data = data
         pack.length = len(data)
+        self.sendPack(pack)
         
 
     def recieveThread(self):
@@ -95,19 +97,27 @@ class HandyCAN(object):
         #First of all, get the data length.
         #We need this to properly decode the package
         pack.length = message[self.lenidx]
+        # get the total length of the package, including overhead
+        
+        #total lenght of the message is startsync + len + checklen + idl + idh + data + checkbytes + endsync
+        # or 2 + 1 + 1 + 1 + 1 + length + checklen +  2
+        # or  8 + length + checklen
+        total_length = 8 + message[self.lenidx] + message[self.checklenidx]
+       
+        if total_length != len(message):
+            print("Message too long or too short")
 
         # Now we need to test wether there are bytes needing decrementing
         # and decrement them.
-        #total lenght of the message is startsync + idl + idh + len + data + endsync
-        # or 2 + 1 + 1 + 1 + length + 2
-        # or 7 + length
-        n_checkbytes = len(message) - (7 + pack.length)
+        n_checkbytes = message[self.checklenidx]
         if n_checkbytes:
-            # the ofsset of the checkbytes is startsync + idl + idh + len + data
-            # or 2+1+1+1+length or 5 + length
-            checkbytes_start = 5 + pack.length
+            # the offset of the checkbytes is startsync + len + checklen + idl + idh + data
+            # or 2 + 1 + 1 + 1 + 1 + length or 6 + length'
+            checkbytes_start = 6 + pack.length
             #fetch which bytes need incrementing
             checkbytes = [message[i + checkbytes_start] for i in range(n_checkbytes)]
+            if len (checkbytes) != n_checkbytes:
+                raise IOError ("Missing byte in checkbytes!")
             # then increment them
             for checkbyte in checkbytes:
                 message[checkbyte] -= 1
@@ -116,7 +126,7 @@ class HandyCAN(object):
         pack.source = (StdId & 0x3E0) >> 5;
         pack.dest = StdId & 0x1F
         pack.data = []
-        for i in range(self.dataidx, pack.length + 5, 1):
+        for i in range(self.dataidx, pack.length + 6, 1):
             pack.data.append(message[i])
 
         return pack
@@ -131,7 +141,7 @@ class HandyCAN(object):
         >>> hcp.dest = 2
         >>> hc = HandyCAN(0)
         >>> hc.encodeCANMessage(hcp)
-        [240, 250, 6, 34, 0, 0, 240, 251, 0, 224, 240, 7, 10, 224, 239]
+        [240, 250, 6, 2, 34, 0, 0, 240, 251, 0, 224, 240, 8, 11, 224, 239]
         >>> msg = hc.encodeCANMessage(hcp)
         >>> hcp2 = hc.decodeCANMessage(msg)
         >>> hcp.length == 6
@@ -150,8 +160,11 @@ class HandyCAN(object):
             self.startsyncbyte1, self.startsyncbyte2,
             #2 length
             pack.length,
-            #3: stdid low
+            #3: number of checkbytes
+            0,
+            #4: stdid low
             StdId & 0xFF,
+            #5: stdid high
             ((StdId & 0xFF00) >> 8) & 0xFF,
         ]
         dataOffset = len(message)
@@ -169,6 +182,8 @@ class HandyCAN(object):
         for checkloc in shift:
             message.append(checkloc)
 
+        message[3]= len(shift)
+
         message.append(0xE0)
         message.append(0xEF)
 
@@ -183,7 +198,7 @@ if __name__ == "__main__":
     doctest.testmod()
 
     
-    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=0.25)
+    ser = serial.Serial('/dev/ttyUSB0',1152000, timeout=0.25)
     ser.reset_input_buffer()
     ser.reset_output_buffer()
 
@@ -195,9 +210,9 @@ if __name__ == "__main__":
 
     while 1:
         hc.send(0x0A, [2, 0])
-        time.sleep(1)
+        time.sleep(0.1)
         hc.send(0x0A, [2, 1])
-        time.sleep(1)
+        time.sleep(0.1)
     
     
 
