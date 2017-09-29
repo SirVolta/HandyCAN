@@ -1,3 +1,28 @@
+# HandyCAN interlink node library
+# Copyright (C) 2017 Pelle Sepp Florens Jansen
+#
+# This file is part of HandyCAN 
+#
+# HandyCAN is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# HandyCAN is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with HandyCAN.  If not, see <http://www.gnu.org/licenses/>.
+"""
+HandyCAN interlink node library
+Communicates to an interlink node using a serial port,
+and allows recieving and transmitting of HandyCAN packages
+
+Todo: doxygen!, more tests, cleanup
+"""
+
 import serial
 import logging
 import threading

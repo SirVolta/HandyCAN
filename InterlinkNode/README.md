@@ -16,13 +16,14 @@ This is why there is a seperate STM32F1 folder.
 
 ## STM32F1
 This is tested to run on A STM32F103C6.  
-Pinout:
-A0: PC->Can node. Disables CAN recieve and UART transmit.  
-A9: UART TX _(unused if A0 is low during startup)_
-A10: UART RX
-A11: CAN RX
-A12: CAN TX
-C13: LED _(open drain)_
+
+### Pinout:
+- A0: PC->Can node. Disables CAN recieve and UART transmit.  
+- A9: UART TX (unused if A0 is low during startup)  
+- A10: UART RX  
+- A11: CAN RX  
+- A12: CAN TX  
+- C13: LED _(open drain)_  
 
 
 
