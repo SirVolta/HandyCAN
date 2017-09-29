@@ -28,10 +28,13 @@
  *
  * \section intro_sec Introduction
  *
- * This is the HandyCAN interlink node firmware\n
- * An interlink node serves as a bridge between a PC and the HandyCAN network\n
+ * This is the HandyCAN interlink node firmware for STM32F10x\n
+ * A interlink node serves as a bridge between a PC and the HandyCAN network\n
  * There is no limit to the amount of interlink nodes in a setup\n
  * They are not required.\n
+ * If the CAN bus is run at over 500kbaud, the STM32F10 is not powerfull
+ * enough to decode all packages.\n
+ * When this is required, use the STM32F4 interlink node\n
  * \n
  * For simplicity and because the interlink node firmware is not very complex,\n
  * it is entirely implemented in main.c.\n
@@ -63,21 +66,26 @@
 ///Toggles a IO pin.
 #define GPIO_ToggleBits(GPIOx, GPIO_Pin) GPIO_WriteBit(GPIOx, GPIO_Pin, !GPIO_ReadOutputDataBit(GPIOx, GPIO_Pin));
 
+/// Indicates start of the UART protocol
 #define STARTSYNCBYTE1 0xF0
+/// Must come right after #STARTSYNCBYTE1 to indicate start
 #define STARTSYNCBYTE2 0xFA
+/// Indicates end of the UART protocol
 #define ENDSYNCBYTE1  0xE0
+/// Must come right after #STARTSYNCBYTE1 to indicate end
 #define ENDSYNCBYTE2  0xEF
+/// Index of length in a UART message
 #define LENIDX 2
+/// Index of amount of check bytes in UART message
 #define CHECKLENIDX 3
+/// Index of stdid low byte in UART message
 #define STDIDLIDX 4
+/// Index of stdid high byte in UART message
 #define STDIDHIDX 5
+/// Index of start of the data bytes in uart message
 #define DATAIDX 6
 
-
-
-
-
-
+/// incoming CAN message to send over the UART
 static struct CANMessageToSend
 {
   ///Indicates if a message is ready
@@ -87,8 +95,9 @@ static struct CANMessageToSend
 } messageToSend;
 
 /*!
+ *
  @brief Called when there is a package on the CAN bus
- @note Buffers the data to keep processing out of the ISR
+ @note Places it into message to send, and will be sent by main()
  */
 extern void
 USB_LP_CAN1_RX0_IRQHandler (void)
@@ -106,45 +115,43 @@ USB_LP_CAN1_RX0_IRQHandler (void)
   GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
 }
 
-static void
+/*!
+ *
+ @brief Sends a CAN message over UART to the PC
+ @note Does all of the transmit UART protocol handling
+ */
+static inline void
 sendCANMessage (void)
 {
+  /// Length of the data to send
   uint8_t len = messageToSend.message.DLC;
-  uint8_t shift[16]; // holds the index of shifted bytes
+  /// holds the index of shifted bytes
+  uint8_t shift[16];
+  /// amount of bytes that have been shifted
   uint8_t shiftloc = 0;
-  uint8_t check;
+  /// current location in the buffer
   uint8_t i;
-
   ///Buffer. Way oversized. Can never be more than 15 large.
   static uint8_t buf[80];
   // 0 and 1 indicates start of frame
-  buf[0] = 0xF0;
-  buf[1] = 0xFA;
-
+  buf[0] = STARTSYNCBYTE1;
+  buf[1] = STARTSYNCBYTE2;
   // 2 is data length
   // As it will never exceed 8, let alone 0xE0 (224) in size,
   // it will never come close to being a sync byte and we can skip checking this
-  buf[2] = len;
+  buf[LENIDX] = len;
 
   // 3 is check length
-  // it also will never exceed 0xE0
-  buf[3] = 0;
+  // it also will never exceed 0xE0. Sync will not have to touch this
+  buf[CHECKLENIDX] = 0;
 
   // 2 and 3 is StdId
-  buf[4] = (uint8_t) (messageToSend.message.StdId & 0xFF);
-  buf[5] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
+  buf[STDIDLIDX] = (uint8_t) (messageToSend.message.StdId & 0xFF);
+  buf[STDIDHIDX] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
 
-  // next comes the data, [5 .. len]
-  for (i = 6; i < len + 6; i++)
-    buf[i] = messageToSend.message.Data[i - 6];
-  /*
-   i=5;
-   buf[i++] = 0xF0;
-   buf[i++] = 0xFA;
-   buf[i++] = 0xAA;
-   buf[i++] = 0xE0;
-   buf[i++] = 0xEF;
-   */
+  // next comes the data, [6 .. len]
+  for (i = DATAIDX; i < len + DATAIDX; i++)
+    buf[i] = messageToSend.message.Data[i - DATAIDX];
 
   // To prevent issues with the sync bytes, we must now check
   // there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEF in them
@@ -152,11 +159,13 @@ sendCANMessage (void)
   // These positions will be appended to the message so the
   // Receiver will know to decrement them.
   // The increment indexes themselves will never be large enough
-  // to come anywhere close to the start and end bytes.
-  for (check = 3; check < i; check++)
+  // to come anywhere close to the start and end bytes, so
+  // we can safely append this to the output without them becoming
+  // sync bytes
+  for (uint8_t check = 4; check < i; check++)
     {
-      if ((buf[check - 1] == 0xF0 && buf[check] == 0xFA)
-	  || (buf[check - 1] == 0xE0 && buf[check] == 0xEF))
+      if ((buf[check - 1] == STARTSYNCBYTE1 && buf[check] == STARTSYNCBYTE2)
+	  || (buf[check - 1] == ENDSYNCBYTE1 && buf[check] == ENDSYNCBYTE2))
 	{
 	  //trace_printf("Injected check for elem %u %#x now %#x\n", check,
 	  //      	 buf[check], buf[check] + 1);
@@ -170,8 +179,8 @@ sendCANMessage (void)
     buf[i++] = shift[checkloc];
 
   // and the last two to indicate end
-  buf[i++] = 0xE0;
-  buf[i++] = 0xEF;
+  buf[i++] = ENDSYNCBYTE1;
+  buf[i++] = ENDSYNCBYTE2;
 
   for (uint8_t j = 0; j < i; j++)
     {
@@ -183,20 +192,30 @@ sendCANMessage (void)
     }
 }
 
+/*!
+ *
+ @brief Recieves and stores bytes from PC. When all are present, sends them as a CAN message.
+ @note Does all of the recieve UART protocol handling
+ */
 extern void
 USART1_IRQHandler (void)
 {
+  // recieved byte from UART
   uint8_t incoming;
+  // data length
   uint8_t len;
+  // amount of checkbytes
   uint8_t checklen;
+  // start of checkbytes
   uint8_t checkbytes_start;
+  // CAN message to send
   CanTxMsg TxMessage;
-  /// uart buffer
+  // uart buffer
   static uint8_t uartbuf[80];
+  // previously recieved byte
   static uint8_t previous = '\0';
+  // current position in the buffer
   static uint8_t bufloc = 0;
-
-  //trace_puts("irq.");
 
   if (USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
     {
@@ -209,9 +228,9 @@ USART1_IRQHandler (void)
       USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 
       // beginning of the message
-      if (incoming == 0xFA)
+      if (incoming == STARTSYNCBYTE2)
 	{
-	  if (previous == 0xF0)
+	  if (previous == STARTSYNCBYTE1)
 	    {
 	      bufloc = 1;
 	      uartbuf[0] = previous;
@@ -219,9 +238,9 @@ USART1_IRQHandler (void)
 	}
       // end of the message
       // beginning of the message
-      if (incoming == 0xEF)
+      if (incoming == ENDSYNCBYTE2)
 	{
-	  if (previous == 0xE0)
+	  if (previous == ENDSYNCBYTE1)
 	    {
 	      uartbuf[bufloc] = incoming;
 	      // message is ready
@@ -229,57 +248,75 @@ USART1_IRQHandler (void)
 	      if (uartbuf[0] != STARTSYNCBYTE1 || uartbuf[1] != STARTSYNCBYTE2)
 		{
 		  trace_printf("not a valid handycan message: invalid header: "
-		      "%#x %#x\n", uartbuf[0], uartbuf[1]);
+			       "%#x %#x\n",
+			       uartbuf[0], uartbuf[1]);
 		  return;
 		}
-	      if (uartbuf[bufloc - 1] != ENDSYNCBYTE1 || uartbuf[bufloc] != ENDSYNCBYTE2)
+	      if (uartbuf[bufloc - 1] != ENDSYNCBYTE1
+		  || uartbuf[bufloc] != ENDSYNCBYTE2)
 		{
 		  trace_printf("not a valid handycan message: invalid footer: "
-		      	     "%#x %#x\n", uartbuf[bufloc -1], uartbuf[bufloc]);
+			       "%#x %#x\n",
+			       uartbuf[bufloc - 1], uartbuf[bufloc]);
 		  return;
 		}
 
+	      // get the data length
 	      len = uartbuf[LENIDX];
-	      if ((8 + len + uartbuf[CHECKLENIDX]) != bufloc+1)
+	      if ((8 + len + uartbuf[CHECKLENIDX]) != bufloc + 1)
 		{
 		  trace_printf("Message size invalid!\n"
-		      "expected %u got %u\n", 8 + len + uartbuf[CHECKLENIDX], bufloc+1);
+			       "expected %u got %u\n",
+			       8 + len + uartbuf[CHECKLENIDX], bufloc + 1);
 		  return;
 		}
 
+	      // if there are checkbytes, decrement them
 	      checklen = uartbuf[CHECKLENIDX];
 	      if (checklen)
 		{
 		  checkbytes_start = 6 + len;
-		  // increment them
-		  for (uint8_t i=0; i<checklen; i++)
+		  // decrement them
+		  for (uint8_t i = 0; i < checklen; i++)
 		    {
-		      uartbuf[ uartbuf[checkbytes_start+i] ]++;
+		      uartbuf[uartbuf[checkbytes_start + i]]--;
 		    }
 		}
+	      // now the message has been reconstructed, get the data out of it
+	      // get the StdId
+	      TxMessage.StdId = uartbuf[STDIDLIDX] | (uartbuf[STDIDHIDX] << 8);
+	      TxMessage.ExtId = 0;
+	      TxMessage.RTR = CAN_RTR_DATA;
+	      TxMessage.IDE = CAN_ID_STD;
+	      // the data length
+	      TxMessage.DLC = len;
+	      // and finally the data
+	      for (uint8_t i = 0; i < len; i++)
+		{
+		  TxMessage.Data[i] = uartbuf[DATAIDX + i];
+		}
 
-
-		TxMessage.StdId = uartbuf[STDIDLIDX] | (uartbuf[STDIDHIDX] << 8);
-	        TxMessage.ExtId = 0;
-	        TxMessage.RTR = CAN_RTR_DATA;
-	        TxMessage.IDE = CAN_ID_STD;
-	        TxMessage.DLC = len;
-	        for (uint8_t i=0; i<len; i++)
-	          {
-	            TxMessage.Data[i] = uartbuf[DATAIDX + i];
-	          }
-
-	        CAN_Transmit (CAN1, &TxMessage);
-	        //trace_puts("Sent CAN message!");
+	      // now transmit this
+	      // note: CAN_Transmit is non-blocking.
+	      // it will queue a CAN message in a mailbox.
+	      // the peripheral will send it as soon as the bus is ready
+	      CAN_Transmit(CAN1, &TxMessage);
 
 	      return;
 	    }
 	}
+      // Store the byte in the buffer, then increment the buffer position
       uartbuf[bufloc++] = incoming;
+      // and store current byte for next time
       previous = incoming;
     }
 }
 
+/*!
+ *
+ @brief Initializes the CAN peripheral and recieve interupt
+ @note The filter recieves EVERY CAN message into FIFO0
+ */
 static void
 CAN_init (void)
 {
@@ -324,13 +361,18 @@ CAN_init (void)
   NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
 }
 
+/*!
+ @brief Initializes the UART peripheral and recieve interupt
+ @note The baudrate must be set very high (at least 1M)
+ */
 static void
 UART_init (void)
 {
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
 
-  USART_InitStructure.USART_BaudRate = 1152000;
+  //USART_DeInit(USART1);
+  USART_InitStructure.USART_BaudRate = 2000000;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -340,7 +382,6 @@ UART_init (void)
   USART_Init(USART1, &USART_InitStructure);
 
   // Setup the uart interrupt
-  //USART_DeInit(USART1);
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
@@ -355,7 +396,10 @@ UART_init (void)
   //USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 }
-
+/*!
+ @brief Initializes the GPIO pins
+ @note JTAG is disabled
+ */
 static void
 GPIO_init (void)
 {
@@ -398,6 +442,7 @@ main (void)
 {
   messageToSend.messageReady = 0;
 
+  // enable all of the clocks
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
@@ -406,6 +451,7 @@ main (void)
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
+  // initialize the peripherals
   GPIO_init();
   UART_init();
   CAN_init();
@@ -419,12 +465,12 @@ main (void)
 
   trace_puts("Interlink node ready!");
 
+  // check if there is a message to send, if so send it.
   while (1)
     {
       if (messageToSend.messageReady)
 	{
 	  sendCANMessage();
-	  //USART_SendData(USART1, 0x1AB);
 	  messageToSend.messageReady = 0;
 	}
       ///Kick the dog

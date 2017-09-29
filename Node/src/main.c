@@ -65,7 +65,7 @@ USB_LP_CAN1_RX0_IRQHandler (void)
   struct HandyCAN_package package;
 
   HandyCAN_recievePackage(CAN_FIFO0, &package);
-  HandyCAN_dumpRxPackage(&package);
+  //HandyCAN_dumpRxPackage(&package);
   if (package.data[0] == 2)
     GPIO_WriteBit(GPIOC, GPIO_Pin_13, package.data[1]);
 }
@@ -87,9 +87,8 @@ CAN1_RX1_IRQHandler (void)
 extern void
 SysTick_Handler (void)
 {
- systick_ms++;
+  systick_ms++;
 }
-
 
 int
 main (void)
@@ -123,9 +122,9 @@ main (void)
   GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   //SysTick timer
-  SysTick_CLKSourceConfig (SysTick_CLKSource_HCLK);
-  SysTick_Config (SystemCoreClock / 1000);
-  SystemCoreClockUpdate ();
+  SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
+  SysTick_Config(SystemCoreClock / 1000);
+  SystemCoreClockUpdate();
   systick_ms = 0;
 
   initDWT();
@@ -138,6 +137,24 @@ main (void)
 
   trace_puts("HandyCAN Ready");
 
+  while (1)
+    {
+      while (HandyCAN_remainingMailboxes())
+	{
+	  /// Place the system uptime in the data bytes as a example
+	  uptime.seconds = (uint32_t) (systick_ms / 1000);
+	  secondsToTime(&uptime);
+	  data[0] = INTENT_NODE_UPTIME;
+	  data[1] = uptime.seconds;
+	  data[2] = uptime.minutes;
+	  data[3] = uptime.hours;
+	  data[4]++;
+	  data[5] = 0xE0;
+	  data[6] = 0xEF;
+
+	  HandyCAN_transmit(0x0A, data, 7);
+	}
+    }
 
   while (1)
     {
@@ -150,8 +167,7 @@ main (void)
       data[3] = uptime.hours;
       data[4]++;
       data[5] = 0xE0;
-      data[6] = 0xEB;
-
+      data[6] = 0xEF;
 
       /// There should be 3 mailboxes avaliable
       trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());

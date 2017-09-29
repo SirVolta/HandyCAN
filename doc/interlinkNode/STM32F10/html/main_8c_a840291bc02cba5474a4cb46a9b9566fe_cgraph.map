@@ -1,0 +1,6 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$main_8c.html#a6f7efc03bd3aca3d9724efe31e5a1630" title="Initializes the CAN peripheral and recieve interupt. " alt="" coords="138,5,217,32"/>
+<area shape="rect" id="node3" href="$main_8c.html#a049fa4a9b6c1b44b0eef7619b91840d0" title="Initializes the GPIO pins. " alt="" coords="136,56,219,83"/>
+<area shape="rect" id="node4" href="$main_8c.html#ae087c57bb8f29d173b8b97a9b3c66bfa" title="Sends a CAN message over UART to the PC. " alt="" coords="108,107,247,133"/>
+<area shape="rect" id="node5" href="$main_8c.html#a68189a0494c0d7faf3415e8ce73d573a" title="Initializes the UART peripheral and recieve interupt. " alt="" coords="135,157,220,184"/>
+</map>
