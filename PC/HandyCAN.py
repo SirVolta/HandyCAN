@@ -1,8 +1,9 @@
 import serial
 import logging
 import threading
+import datetime
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class HandyCANPackage(object):
@@ -34,6 +35,8 @@ class HandyCAN(object):
         self.dataidx = 6
         self.sourceoffset = 5
         self.own_address = own_address
+        self.minimum_time_between_packages = 1000 #microseconds
+        self.last_package_sent_time = datetime.datetime.now()
         
     def init_serial(self, ser, recieveCallback):
         self.recieveCallback = recieveCallback
@@ -44,10 +47,17 @@ class HandyCAN(object):
         self.thread_read.start()
 
     def sendPack(self, package):
+        timediff = datetime.datetime.now() - self.last_package_sent_time
+        if timediff.microseconds < self.minimum_time_between_packages:
+            return 0
+        
         message = self.encodeCANMessage(package)
         bytesmessage = [elem.to_bytes(1, byteorder='big') for elem in message]
+        bytes_sent = 0
         for byte in bytesmessage:
-            self.ser.write(byte)
+            bytes_sent += self.ser.write(byte)
+        self.last_package_sent_time = datetime.datetime.now()
+        return bytes_sent
 
     def send(self, dest, data):
         pack = HandyCANPackage()
@@ -55,7 +65,7 @@ class HandyCAN(object):
         pack.dest = dest
         pack.data = data
         pack.length = len(data)
-        self.sendPack(pack)
+        return self.sendPack(pack)
         
 
     def recieveThread(self):
@@ -198,21 +208,32 @@ if __name__ == "__main__":
     doctest.testmod()
 
     
-    ser = serial.Serial('/dev/ttyUSB0',1152000, timeout=0.25)
+    ser = serial.Serial('/dev/ttyUSB0',2000000, timeout=0.25)
     ser.reset_input_buffer()
     ser.reset_output_buffer()
 
+    previousDat = 0
+
     def rx(package):
+        global previousDat
+        dat = package.data[4]
+        
+        if dat != previousDat +1 and dat !=0 and previousDat != 255:
+            print ("Overrun detected: {} {}".format( dat, previousDat))
+        previousDat = dat
         print(package)
 
     hc = HandyCAN(0)
     hc.init_serial(ser, rx)
 
     while 1:
+        #time.sleep(1)
+        #continue
         hc.send(0x0A, [2, 0])
-        time.sleep(0.1)
+        time.sleep(0.0001)
         hc.send(0x0A, [2, 1])
-        time.sleep(0.1)
+        time.sleep(0.0001)
+        
     
     
 

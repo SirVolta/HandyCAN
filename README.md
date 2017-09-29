@@ -4,6 +4,8 @@ STM32 microcontrollers and a computer using a CAN bus network.
 The HandyCAN specification specifies three different type of devices:
 Node, InterlinkNode, PC
 
+[Please check out the documentation for further information!](https://github.com/SirVolta/HandyCAN/tree/master/doc)
+
 Every node on the network has a address and a base type.
 Nodes listen only to its own address, and a special broadcast address.
 This way any node can communicate with any other node without bothering others,
@@ -35,9 +37,3 @@ For example: which color and intensity of light he/she wants, at which time of d
 at a specific ambient light level, only when motion is detected, etc.
 This While still being able to force it on and off using a hardware toggle switch.
 ![HomeAutomationExample](https://raw.githubusercontent.com/SirVolta/HandyCAN/master/doc/resources/HandyCan_HomeAut_Example.png "HandyCAN Home Automation Example")
-
-
-
-For the moment this is just empty shell, but HandyCAN is under rapid development
-and will see an implementation soon.
-Example usages and the protocol specification is coming soon.
