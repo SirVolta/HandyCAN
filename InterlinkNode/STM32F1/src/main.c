@@ -24,7 +24,7 @@
  along with HandyCAN.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*! \mainpage HandyCAN Node library and loopback demo
+/*! \mainpage HandyCAN Interlink Node firmware
  *
  * \section intro_sec Introduction
  *
@@ -61,9 +61,7 @@
  *
  *
  * \section proto_sec Protocol
- * The handyCAN protocol is described here: https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol \n
- * The protocol used between interlink node and PC is described here: https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol/interlink
- *
+ * The handyCAN and interlink protocol is described here: https://github.com/SirVolta/HandyCAN/tree/master/doc/protocol \n
  *
  *
  *
