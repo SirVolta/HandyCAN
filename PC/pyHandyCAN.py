@@ -29,7 +29,7 @@ Interlink Protocol and the HandyCAN protocol.
 
 \section nav_sec Navigation
 The library description can be found here: pyHandyCAN.HandyCAN \n
-An example implementation is here: pyHandyCAN.py
+An example implementation is here: hcdemo.py
 
 \see https://github.com/SirVolta/HandyCAN/tree/master/examples
 
@@ -39,7 +39,7 @@ import logging
 import threading
 import datetime
 
-logging.basicConfig(level=logging.DEBUG)
+
 
 
 class HandyCANPackage(object):
@@ -61,7 +61,7 @@ class HandyCANPackage(object):
         """
         String representation of the package
         """
-        prettyOutput = "Incoming CAN packet from {} ({}) to {} ({}) with length {}\nContaining data {} {} ".format(
+        prettyOutput = "Incoming CAN packet from {} ({}) to {} ({}) with length {} Containing data {} {} ".format(
             self.source, hex(self.source),
             self.dest, hex(self.dest),
             self.length, self.data, [hex(elem) for elem in self.data])
@@ -386,13 +386,8 @@ if __name__ == "__main__":
     """
     Now run some tests and demos
     """
+    logging.basicConfig(level=logging.INFO)
     import doctest
     import time
     doctest.testmod()
-
-    
-
-        
-    
-    
 
