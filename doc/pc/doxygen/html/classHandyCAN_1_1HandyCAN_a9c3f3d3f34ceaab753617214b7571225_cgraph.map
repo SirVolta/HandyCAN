@@ -1,0 +1,4 @@
+<map id="HandyCAN.HandyCAN.send" name="HandyCAN.HandyCAN.send">
+<area shape="rect" id="node2" href="$classHandyCAN_1_1HandyCAN.html#a8c8aea99bf59b596a21c4f2b4e83af8e" title="Sends a HandyCANPackage. " alt="" coords="255,13,485,39"/>
+<area shape="rect" id="node3" href="$classHandyCAN_1_1HandyCAN.html#a8f02f0d2190d79803db3bff5be7f732f" title="Takes a HandyCANPackage and converts it into a interlink message. " alt="" coords="533,5,751,47"/>
+</map>
