@@ -85,9 +85,9 @@
 #define STARTSYNCBYTE2 0xFA
 /// Indicates end of the UART protocol
 #define ENDSYNCBYTE1  0xE0
-/// Must come right after #STARTSYNCBYTE1 to indicate end
+/// Must come right after #STARTSYNCBYTE1 to indicate end (Was 0xEF)
 /// TODO: Change this to 0xEE, as 0xEF+1 = 0xF0, which is start1! DO'H!
-#define ENDSYNCBYTE2  0xEF
+#define ENDSYNCBYTE2  0xEE
 /// Index of length in a UART message
 #define LENIDX 2
 /// Index of amount of check bytes in UART message
@@ -173,7 +173,7 @@ sendCANMessage (void)
     buf[i] = messageToSend.message.Data[i - DATAIDX];
 
   /// To prevent issues with the sync bytes, we must now check
-  /// there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEF in them.\n
+  /// there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEE in them.\n
   /// if so, increment them and store their position.\n
   /// These positions will be appended to the message so the
   /// Receiver will know to decrement them.\n

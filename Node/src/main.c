@@ -65,7 +65,7 @@ USB_LP_CAN1_RX0_IRQHandler (void)
   struct HandyCAN_package package;
 
   HandyCAN_recievePackage(CAN_FIFO0, &package);
-  //HandyCAN_dumpRxPackage(&package);
+  HandyCAN_dumpRxPackage(&package);
   if (package.data[0] == 2)
     GPIO_WriteBit(GPIOC, GPIO_Pin_13, package.data[1]);
 }
@@ -137,7 +137,7 @@ main (void)
 
   trace_puts("HandyCAN Ready");
 
-  while (1)
+  while (0)
     {
       while (HandyCAN_remainingMailboxes())
 	{
@@ -170,7 +170,7 @@ main (void)
       data[6] = 0xEF;
 
       /// There should be 3 mailboxes avaliable
-      trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
+      //trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
       /// Transmit data to ourself, then increment the counter,
       /// And broadcast everything but the days.
@@ -190,7 +190,7 @@ main (void)
 
       HandyCAN_transmit(HC_BROADCAST_ADDR, data, 7);
 
-      trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
+      //trace_printf("Available: %u\n", HandyCAN_remainingMailboxes());
 
       delayUs(2500 * 1000);
     }
