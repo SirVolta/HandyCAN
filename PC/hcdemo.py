@@ -67,12 +67,14 @@ if __name__ == "__main__":
     hc.init_serial(ser, rx)
 
     while 1:
+        time.sleep (1);
+        continue
         try:
-            hc.send(0x0A, [2, 0, 0xE0, 0xEE])
+            hc.send(0x01, [2, 0, 0xE0, 0xEE])
         except IOError as e:
             log.error(e)
         time.sleep(2.1)
-        hc.send(0x0A, [2, 1, 0xF0, 0xFA])
+        hc.send(0x01, [2, 1, 0xF0, 0xFA])
         time.sleep(2.1)
 
         
