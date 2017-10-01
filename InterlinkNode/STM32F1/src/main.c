@@ -85,8 +85,7 @@
 #define STARTSYNCBYTE2 0xFA
 /// Indicates end of the UART protocol
 #define ENDSYNCBYTE1  0xE0
-/// Must come right after #STARTSYNCBYTE1 to indicate end (Was 0xEF)
-/// TODO: Change this to 0xEE, as 0xEF+1 = 0xF0, which is start1! DO'H!
+/// Must come right after #ENDSYNCBYTE1 to indicate end
 #define ENDSYNCBYTE2  0xEE
 /// Index of length in a UART message
 #define LENIDX 2

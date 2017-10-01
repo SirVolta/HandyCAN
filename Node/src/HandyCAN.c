@@ -38,7 +38,7 @@
 #include <string.h>
 #include "stm32f10x_conf.h"
 #include "svlib_stm32f10x.h"
-#include "HandyCAN.h"
+#include <HandyCAN.h>
 
 ///CAN Mailbox Transmit Request
 #define TMIDxR_TXRQ  ((uint32_t)0x00000001)
