@@ -1,2 +1,2 @@
 # Examples
-Coming soon
+This folder contains example usages
