@@ -10,7 +10,7 @@ Connect the UART RX of the pc to the UART TX of the first interlink node connect
 Connect the UART TX of the PC to the UART RX of the second interlink node connected to the CAN bus  
 Also connect A0 of the second interlink node to ground during startup of the node. This indicates that it is PC->CAN only, and it should not decode incoming can messages.  
 
-If a speed higher then 500k is required, a more powerfull microcontroller like the STM32F4 is needed  
+If a speed higher then 500k is required, a more powerful microcontroller like the STM32F4 is needed  
 In the future i might build a STMF4 or better based interlink node that is fast enough to send AND recieve at 1Mbaud.  
 This is why there is a seperate STM32F1 folder.  
 
@@ -18,7 +18,7 @@ This is why there is a seperate STM32F1 folder.
 This is tested to run on A STM32F103C6.  
 
 ### Pinout:
-- A0: PC->Can node. Disables CAN recieve and UART transmit.  
+- A0: PC->Can node. Disables CAN recieve and UART transmit if connected to ground. (jumper).  
 - A9: UART TX (unused if A0 is low during startup)  
 - A10: UART RX  
 - A11: CAN RX  
