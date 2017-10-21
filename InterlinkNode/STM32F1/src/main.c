@@ -144,6 +144,21 @@ USB_LP_CAN1_RX0_IRQHandler (void)
 static inline void
 sendCANMessage (void)
 {
+  // DMA timeout
+  uint32_t dma_timeout = 1000;
+  // if we're still transmitting ,wait
+  // the chances of this happening should be zero,
+  // but better safe than sorry.
+  while ((DMA1_Channel4->CCR & DMA_CCR1_EN) && dma_timeout)
+    {
+      trace_puts("wait");
+      if (--dma_timeout == 0)
+	{
+	  trace_puts("DMA TX TIMEOUT");
+	  return;
+	}
+    }
+
   // Length of the data to send
   uint8_t len = messageToSend.message.DLC;
   // holds the index of shifted bytes
@@ -154,6 +169,8 @@ sendCANMessage (void)
   uint8_t i;
   // Buffer. Way oversized. Can never be more than 15 large.
   uint8_t buf[80];
+
+
   // 0 and 1 indicates start of frame
   buf[0] = STARTSYNCBYTE1;
   buf[1] = STARTSYNCBYTE2;
@@ -203,14 +220,27 @@ sendCANMessage (void)
   buf[i++] = ENDSYNCBYTE1;
   buf[i++] = ENDSYNCBYTE2;
 
-  for (uint8_t j = 0; j < i; j++)
-    {
-      /// TODO: Use DMA for transmit
-      while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-	;
-      USART_SendData(USART1, buf[j]);
-      //trace_printf("buf[%u]: %#x, %u\n", j, buf[j], buf[j]);
-    }
+
+  // now send using DMA
+  //should already be disabled at this point
+  DMA_Cmd(DMA1_Channel4, DISABLE);
+  DMA1_Channel4->CMAR = (uint32_t) buf;
+  // Set the amount of data to be transmitted
+  DMA_SetCurrDataCounter(DMA1_Channel4, i);
+  DMA_Cmd(DMA1_Channel4, ENABLE);
+  USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
+
+
+  /*
+   for (uint8_t j = 0; j < i; j++)
+   {
+   /// TODO: Use DMA for transmit
+   while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+   ;
+   USART_SendData(USART1, buf[j]);
+   //trace_printf("buf[%u]: %#x, %u\n", j, buf[j], buf[j]);
+   }
+   */
 }
 
 /*!
@@ -248,8 +278,8 @@ USART1_IRQHandler (void)
       incoming = (char) USART_ReceiveData(USART1);
       USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 
-      //if (incoming == STARTSYNCBYTE1)
-	//recieving = 1;
+      if (incoming == STARTSYNCBYTE1)
+	recieving = 1;
 
       // beginning of the message
       if (incoming == STARTSYNCBYTE2)
@@ -258,6 +288,7 @@ USART1_IRQHandler (void)
 	    {
 	      bufloc = 1;
 	      uartbuf[0] = previous;
+	      recieving = 1;
 	    }
 	}
       // end of the message
@@ -328,7 +359,7 @@ USART1_IRQHandler (void)
 	      // it will queue a CAN message in a mailbox.
 	      // the peripheral will send it as soon as the bus is ready
 	      CAN_Transmit(CAN1, &TxMessage);
-	      //recieving = 0;
+	      recieving = 0;
 
 	      return;
 	    }
@@ -337,6 +368,37 @@ USART1_IRQHandler (void)
       uartbuf[bufloc++] = incoming;
       // and store current byte for next time
       previous = incoming;
+    }
+}
+
+/*!
+ * There is a chance that the recieve flag does not get reset.
+ * most likely due to a message not being completely sent or other kinds of corruption.
+ * In this case, the interlink node will become inert. To counter that, we reset
+ * the line every few minutes so a deadlock will never last long.
+ @brief Reset the receiving flag if something goes wrong
+ @note Even if this happens during receive, the CTS line will restore itself when the CAN message is sent
+ */
+extern void
+TIM4_IRQHandler (void)
+{
+  trace_printf("ResetRecieve!\n");
+  recieving = 0;
+  TIM_ClearITPendingBit(TIM4, TIM_FLAG_Update);
+}
+
+/*!
+ @brief Called by NVIC when UART DMA transmit is completed
+ @note  Stop DMA, clear interrupt and transfer flags
+ */
+extern void
+DMA1_Channel4_IRQHandler (void)
+{
+  if (DMA_GetFlagStatus(DMA1_IT_TC4))
+    {
+      DMA_ClearITPendingBit(DMA1_IT_TC4);
+      USART_DMACmd(USART1, USART_DMAReq_Tx, DISABLE);
+      DMA_Cmd(DMA1_Channel4, DISABLE);
     }
 }
 
@@ -402,8 +464,10 @@ UART_init (void)
 {
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
+  DMA_InitTypeDef DMA_InitStructure;
 
   //USART_DeInit(USART1);
+  USART_StructInit(&USART_InitStructure);
   USART_InitStructure.USART_BaudRate = 2000000;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -427,6 +491,32 @@ UART_init (void)
   //USART_ClearFlag(USART1, USART_FLAG_TC);
   //USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+  DMA_DeInit(DMA1_Channel4);
+  DMA_StructInit(&DMA_InitStructure);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) &USART1->DR;
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) NULL;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+  DMA_InitStructure.DMA_BufferSize = 1;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+
+  DMA_Init(DMA1_Channel4, &DMA_InitStructure);
+  /// Enable DMA Stream Transfer Complete interrupt
+  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
+  DMA_ClearFlag(DMA1_IT_TC4);
+
+  // set interupt controller for DMA1C4
+  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel4_IRQn; //I2C1 connect to channel 7 of DMA1
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x05;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x05;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
 }
 /*!
  @brief Initializes the GPIO pins
@@ -482,6 +572,33 @@ GPIO_init (void)
   GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
+void
+timer_init (void)
+{
+  NVIC_InitTypeDef nvicStructure;
+  TIM_TimeBaseInitTypeDef timerInitStructure;
+
+  //Setup for interrupt roughy every minute
+  timerInitStructure.TIM_Prescaler = 0xFFFF;
+  timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+  timerInitStructure.TIM_Period = 0xFFFF;
+  timerInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;
+  timerInitStructure.TIM_RepetitionCounter = 0;
+  TIM_TimeBaseInit(TIM4, &timerInitStructure);
+  TIM_ClearITPendingBit(TIM4, TIM_FLAG_Update);
+  TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
+  TIM_ARRPreloadConfig(TIM4, ENABLE);
+  TIM_Cmd(TIM4, ENABLE);
+
+  // setup the timer interrupt
+  nvicStructure.NVIC_IRQChannel = TIM4_IRQn;
+  nvicStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  nvicStructure.NVIC_IRQChannelSubPriority = 1;
+  nvicStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvicStructure);
+
+}
+
 int
 main (void)
 {
@@ -493,6 +610,7 @@ main (void)
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
@@ -500,6 +618,7 @@ main (void)
   GPIO_init();
   UART_init();
   CAN_init();
+  timer_init();
 
   //Setup the watchdog
   IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
@@ -513,8 +632,8 @@ main (void)
   // check if there is a message to send, if so send it.
   while (1)
     {
-      //if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
-      if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+      if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+	//if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
 	GPIOA->BSRR = GPIO_Pin_1;
       else
 	GPIOA->BRR = GPIO_Pin_1;
@@ -524,18 +643,12 @@ main (void)
 	  sendCANMessage();
 	  messageToSend.messageReady = 0;
 	}
-      // is true when the first mailbox is  available
-      // and thus no packages being transmitted
-      // But we need to fip this, as the CTS is active low,
-      // meaning that a value of 0 means Clear To Send
-      // note receiving needs to be inverted as it is an active low signal
 
-      //if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
-      if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+      if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+	//if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
 	GPIOA->BSRR = GPIO_Pin_1;
       else
 	GPIOA->BRR = GPIO_Pin_1;
-
 
       ///Kick the dog
       IWDG_ReloadCounter();
