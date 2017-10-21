@@ -62,12 +62,16 @@ if __name__ == "__main__":
         log.info(package)
 
     ## The main HandyCAN class, set address to 0 for now
-    hc = pyHandyCAN.HandyCAN(0)
+    hc = pyHandyCAN.HandyCAN(0, cts=True)
     # connect the serial port and recieve function
     hc.init_serial(ser, rx)
 
     while 1:
         time.sleep (1);
+        hc.txe=False
+        for i in range(100):
+            hc.send(0x01, [2, 0, 0xE0, 0xEE])
+        hc.txe=True
         continue
         try:
             hc.send(0x01, [2, 0, 0xE0, 0xEE])
