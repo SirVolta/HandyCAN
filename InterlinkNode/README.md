@@ -1,6 +1,11 @@
 # Interlink Node
 The interlink node faclitates comms between the PC an the CAN network
 
+## Clear To Send
+Active low output indicating weather the interlink node is ready to send a packet. 
+This way the PC can know when the package sent to the interlink node is acturally sent onto the CAN bus. 
+It is not requirered, but then the send speed of the PC must be dramatically lowered to prevent
+sending packets faster then the CAN bus can handle. 
 
 ## Not enough CPU power
 If the CAN bus is run at over 125kbaud, the STM32F10 is not powerful enough to recieve and transmit all packages in realtime.  
@@ -18,7 +23,8 @@ This is why there is a seperate STM32F1 folder.
 This is tested to run on A STM32F103C6.  
 
 ### Pinout:
-- A0: PC->Can node. Disables CAN recieve and UART transmit if connected to ground. (jumper).  
+- A0: PC->Can node. Disables CAN recieve and UART transmit if connected to ground. (jumper).
+- A1: CTS_N: Clear To Send. Is high while a package is being sent.
 - A9: UART TX (unused if A0 is low during startup)  
 - A10: UART RX  
 - A11: CAN RX  

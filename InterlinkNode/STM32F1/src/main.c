@@ -100,12 +100,15 @@
 
 /// for debug
 uint32_t overruns = 0;
+/// Indicates if we are receiving a package
+static uint8_t recieving;
 
 /// incoming CAN message to send over the UART
 static struct CANMessageToSend
 {
   ///Indicates if a message is ready
   uint8_t messageReady;
+
   /// The message to be sent to the PC
   CanRxMsg message;
 } messageToSend;
@@ -245,6 +248,9 @@ USART1_IRQHandler (void)
       incoming = (char) USART_ReceiveData(USART1);
       USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 
+      //if (incoming == STARTSYNCBYTE1)
+	//recieving = 1;
+
       // beginning of the message
       if (incoming == STARTSYNCBYTE2)
 	{
@@ -268,6 +274,7 @@ USART1_IRQHandler (void)
 		  trace_printf("not a valid handycan message: invalid header: "
 			       "%#x %#x\n",
 			       uartbuf[0], uartbuf[1]);
+		  recieving = 0;
 		  return;
 		}
 	      if (uartbuf[bufloc - 1] != ENDSYNCBYTE1
@@ -276,6 +283,7 @@ USART1_IRQHandler (void)
 		  trace_printf("not a valid handycan message: invalid footer: "
 			       "%#x %#x\n",
 			       uartbuf[bufloc - 1], uartbuf[bufloc]);
+		  recieving = 0;
 		  return;
 		}
 
@@ -286,6 +294,7 @@ USART1_IRQHandler (void)
 		  trace_printf("Message size invalid!\n"
 			       "expected %u got %u\n",
 			       8 + len + uartbuf[CHECKLENIDX], bufloc + 1);
+		  recieving = 0;
 		  return;
 		}
 
@@ -319,6 +328,7 @@ USART1_IRQHandler (void)
 	      // it will queue a CAN message in a mailbox.
 	      // the peripheral will send it as soon as the bus is ready
 	      CAN_Transmit(CAN1, &TxMessage);
+	      //recieving = 0;
 
 	      return;
 	    }
@@ -437,6 +447,12 @@ GPIO_init (void)
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  // pin A1: CAN Clear To Send
+  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOA, &GPIO_InitStruct);
+
   // Configure CAN pin: A11: RX
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
@@ -497,11 +513,30 @@ main (void)
   // check if there is a message to send, if so send it.
   while (1)
     {
+      //if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+      if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+	GPIOA->BSRR = GPIO_Pin_1;
+      else
+	GPIOA->BRR = GPIO_Pin_1;
+
       if (messageToSend.messageReady)
 	{
 	  sendCANMessage();
 	  messageToSend.messageReady = 0;
 	}
+      // is true when the first mailbox is  available
+      // and thus no packages being transmitted
+      // But we need to fip this, as the CTS is active low,
+      // meaning that a value of 0 means Clear To Send
+      // note receiving needs to be inverted as it is an active low signal
+
+      //if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+      if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+	GPIOA->BSRR = GPIO_Pin_1;
+      else
+	GPIOA->BRR = GPIO_Pin_1;
+
+
       ///Kick the dog
       IWDG_ReloadCounter();
     }
