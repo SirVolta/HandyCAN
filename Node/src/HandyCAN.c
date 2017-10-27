@@ -408,7 +408,8 @@ HandyCAN_dumpRxPackage (struct HandyCAN_package* package)
   else
     {
       trace_printf("HandyCAN: message from %#x to %#x with intent: %u\n",
-		   package->source_adress, package->dest_adress, package->data[0]);
+		   package->source_adress, package->dest_adress,
+		   package->data[0]);
     }
 
   for (uint8_t i = 1; i < package->len; i++)
