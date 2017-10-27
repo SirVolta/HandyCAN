@@ -101,7 +101,7 @@
 /// for debug
 uint32_t overruns = 0;
 /// Indicates if we are receiving a package
-static uint8_t recieving;
+static uint8_t receiving;
 
 /// incoming CAN message to send over the UART
 static struct CANMessageToSend
@@ -110,7 +110,9 @@ static struct CANMessageToSend
   uint8_t messageReady;
 
   /// The message to be sent to the PC
-  CanRxMsg message;
+  uint8_t DLC;
+  uint32_t StdId;
+  uint8_t data[8];
 } messageToSend;
 
 /*!
@@ -121,19 +123,35 @@ static struct CANMessageToSend
 extern void
 USB_LP_CAN1_RX0_IRQHandler (void)
 {
-  CanRxMsg rx_message;
-  CAN_Receive(CAN1, CAN_FIFO0, &rx_message);
   if (!messageToSend.messageReady)
     {
-      messageToSend.message = rx_message;
+      messageToSend.StdId = (uint32_t) 0x000007FF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RIR >> 21);
+      messageToSend.DLC = (uint8_t) 0x0F & CAN1->sFIFOMailBox[CAN_FIFO0].RDTR;
+      messageToSend.data[0] = (uint8_t) 0xFF
+	  & CAN1->sFIFOMailBox[CAN_FIFO0].RDLR;
+      messageToSend.data[1] = (uint8_t) 0xFF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RDLR >> 8);
+      messageToSend.data[2] = (uint8_t) 0xFF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RDLR >> 16);
+      messageToSend.data[3] = (uint8_t) 0xFF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RDLR >> 24);
+      messageToSend.data[4] = (uint8_t) 0xFF
+	  & CAN1->sFIFOMailBox[CAN_FIFO0].RDHR;
+      messageToSend.data[5] = (uint8_t) 0xFF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RDHR >> 8);
+      messageToSend.data[6] = (uint8_t) 0xFF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RDHR >> 16);
+      messageToSend.data[7] = (uint8_t) 0xFF
+	  & (CAN1->sFIFOMailBox[CAN_FIFO0].RDHR >> 24);
       messageToSend.messageReady = 1;
     }
   else
     {
-      trace_puts("overrun");
-      //overruns++;
+      overruns++;
       GPIO_ToggleBits(GPIOC, GPIO_Pin_13);
     }
+  CAN1->RF0R |= CAN_RF0R_RFOM0;
 }
 
 /*!
@@ -159,8 +177,6 @@ sendCANMessage (void)
 	}
     }
 
-  // Length of the data to send
-  uint8_t len = messageToSend.message.DLC;
   // holds the index of shifted bytes
   uint8_t shift[16];
   // amount of bytes that have been shifted
@@ -170,26 +186,25 @@ sendCANMessage (void)
   // Buffer. Way oversized. Can never be more than 15 large.
   uint8_t buf[80];
 
-
   // 0 and 1 indicates start of frame
   buf[0] = STARTSYNCBYTE1;
   buf[1] = STARTSYNCBYTE2;
   // 2 is data length
   // As it will never exceed 8, let alone 0xE0 (224) in size,
   // it will never come close to being a sync byte and we can skip checking this
-  buf[LENIDX] = len;
+  buf[LENIDX] = messageToSend.DLC;
 
   // 3 is check length
   // it also will never exceed 0xE0. Sync will not have to touch this
   buf[CHECKLENIDX] = 0;
 
-  // 2 and 3 is StdId
-  buf[STDIDLIDX] = (uint8_t) (messageToSend.message.StdId & 0xFF);
-  buf[STDIDHIDX] = (uint8_t) ((messageToSend.message.StdId & 0xFF00) >> 8);
+  // 4 and 5 is StdId
+  buf[STDIDLIDX] = (uint8_t) (messageToSend.StdId & 0xFF);
+  buf[STDIDHIDX] = (uint8_t) ((messageToSend.StdId & 0xFF00) >> 8);
 
   // next comes the data, [6 .. len]
-  for (i = DATAIDX; i < len + DATAIDX; i++)
-    buf[i] = messageToSend.message.Data[i - DATAIDX];
+  for (i = DATAIDX; i < messageToSend.DLC + DATAIDX; i++)
+    buf[i] = messageToSend.data[i - DATAIDX];
 
   /// To prevent issues with the sync bytes, we must now check
   /// there are any bytes with 0xF0, 0xFA, 0xE0, or 0xEE in them.\n
@@ -220,7 +235,6 @@ sendCANMessage (void)
   buf[i++] = ENDSYNCBYTE1;
   buf[i++] = ENDSYNCBYTE2;
 
-
   // now send using DMA
   //should already be disabled at this point
   DMA_Cmd(DMA1_Channel4, DISABLE);
@@ -229,7 +243,6 @@ sendCANMessage (void)
   DMA_SetCurrDataCounter(DMA1_Channel4, i);
   DMA_Cmd(DMA1_Channel4, ENABLE);
   USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
-
 
   /*
    for (uint8_t j = 0; j < i; j++)
@@ -279,7 +292,7 @@ USART1_IRQHandler (void)
       USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 
       if (incoming == STARTSYNCBYTE1)
-	recieving = 1;
+	receiving = 1;
 
       // beginning of the message
       if (incoming == STARTSYNCBYTE2)
@@ -288,7 +301,7 @@ USART1_IRQHandler (void)
 	    {
 	      bufloc = 1;
 	      uartbuf[0] = previous;
-	      recieving = 1;
+	      receiving = 1;
 	    }
 	}
       // end of the message
@@ -305,7 +318,7 @@ USART1_IRQHandler (void)
 		  trace_printf("not a valid handycan message: invalid header: "
 			       "%#x %#x\n",
 			       uartbuf[0], uartbuf[1]);
-		  recieving = 0;
+		  receiving = 0;
 		  return;
 		}
 	      if (uartbuf[bufloc - 1] != ENDSYNCBYTE1
@@ -314,7 +327,7 @@ USART1_IRQHandler (void)
 		  trace_printf("not a valid handycan message: invalid footer: "
 			       "%#x %#x\n",
 			       uartbuf[bufloc - 1], uartbuf[bufloc]);
-		  recieving = 0;
+		  receiving = 0;
 		  return;
 		}
 
@@ -325,7 +338,7 @@ USART1_IRQHandler (void)
 		  trace_printf("Message size invalid!\n"
 			       "expected %u got %u\n",
 			       8 + len + uartbuf[CHECKLENIDX], bufloc + 1);
-		  recieving = 0;
+		  receiving = 0;
 		  return;
 		}
 
@@ -358,8 +371,9 @@ USART1_IRQHandler (void)
 	      // note: CAN_Transmit is non-blocking.
 	      // it will queue a CAN message in a mailbox.
 	      // the peripheral will send it as soon as the bus is ready
+	      // TODO: Rewrite using direct register access
 	      CAN_Transmit(CAN1, &TxMessage);
-	      recieving = 0;
+	      receiving = 0;
 
 	      return;
 	    }
@@ -372,7 +386,7 @@ USART1_IRQHandler (void)
 }
 
 /*!
- * There is a chance that the recieve flag does not get reset.
+ * There is a chance that the receive flag does not get reset.
  * most likely due to a message not being completely sent or other kinds of corruption.
  * In this case, the interlink node will become inert. To counter that, we reset
  * the line every few minutes so a deadlock will never last long.
@@ -382,8 +396,17 @@ USART1_IRQHandler (void)
 extern void
 TIM4_IRQHandler (void)
 {
-  trace_printf("ResetRecieve!\n");
-  recieving = 0;
+  static uint8_t minutes = 0;
+  if (minutes >= 2)
+    {
+      //trace_printf("ResetRecieve! overruns: %lu\n", overruns);
+      receiving = 0;
+      minutes = 0;
+    }
+  else
+    {
+      minutes++;
+    }
   TIM_ClearITPendingBit(TIM4, TIM_FLAG_Update);
 }
 
@@ -446,7 +469,7 @@ CAN_init (void)
 
       //Setup for FIFO0 data, higher priority than UART
       NVIC_InitStruct.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
-      NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;
+      NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 5;
       NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
       NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
       NVIC_Init(&NVIC_InitStruct);
@@ -462,27 +485,27 @@ CAN_init (void)
 static void
 UART_init (void)
 {
-  USART_InitTypeDef USART_InitStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;
-  DMA_InitTypeDef DMA_InitStructure;
+  USART_InitTypeDef USART_InitStruct;
+  NVIC_InitTypeDef NVIC_InitStruct;
+  DMA_InitTypeDef DMA_InitStruct;
 
   //USART_DeInit(USART1);
-  USART_StructInit(&USART_InitStructure);
-  USART_InitStructure.USART_BaudRate = 2000000;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  USART_InitStructure.USART_Parity = USART_Parity_No;
-  USART_InitStructure.USART_HardwareFlowControl =
+  USART_StructInit(&USART_InitStruct);
+  USART_InitStruct.USART_BaudRate = 2000000;
+  USART_InitStruct.USART_WordLength = USART_WordLength_8b;
+  USART_InitStruct.USART_StopBits = USART_StopBits_1;
+  USART_InitStruct.USART_Parity = USART_Parity_No;
+  USART_InitStruct.USART_HardwareFlowControl =
   USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-  USART_Init(USART1, &USART_InitStructure);
+  USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  USART_Init(USART1, &USART_InitStruct);
 
   // Setup the uart interrupt
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 2;
+  NVIC_InitStruct.NVIC_IRQChannelSubPriority = 2;
+  NVIC_InitStruct.NVIC_IRQChannel = USART1_IRQn;
+  NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStruct);
 
   // Enable the uart and the uart interrupt
   USART_Cmd(USART1, ENABLE);
@@ -493,30 +516,30 @@ UART_init (void)
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 
   DMA_DeInit(DMA1_Channel4);
-  DMA_StructInit(&DMA_InitStructure);
-  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) &USART1->DR;
-  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t) NULL;
-  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
-  DMA_InitStructure.DMA_BufferSize = 1;
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_StructInit(&DMA_InitStruct);
+  DMA_InitStruct.DMA_PeripheralBaseAddr = (uint32_t) &USART1->DR;
+  DMA_InitStruct.DMA_MemoryBaseAddr = (uint32_t) NULL;
+  DMA_InitStruct.DMA_DIR = DMA_DIR_PeripheralDST;
+  DMA_InitStruct.DMA_BufferSize = 1;
+  DMA_InitStruct.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStruct.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStruct.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+  DMA_InitStruct.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  DMA_InitStruct.DMA_Mode = DMA_Mode_Normal;
+  DMA_InitStruct.DMA_Priority = DMA_Priority_Low;
+  DMA_InitStruct.DMA_M2M = DMA_M2M_Disable;
 
-  DMA_Init(DMA1_Channel4, &DMA_InitStructure);
+  DMA_Init(DMA1_Channel4, &DMA_InitStruct);
   /// Enable DMA Stream Transfer Complete interrupt
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
   DMA_ClearFlag(DMA1_IT_TC4);
 
   // set interupt controller for DMA1C4
-  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel4_IRQn; //I2C1 connect to channel 7 of DMA1
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x05;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x05;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  NVIC_InitStruct.NVIC_IRQChannel = DMA1_Channel4_IRQn; //I2C1 connect to channel 7 of DMA1
+  NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStruct);
 }
 /*!
  @brief Initializes the GPIO pins
@@ -568,6 +591,7 @@ GPIO_init (void)
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
   GPIO_Init(GPIOA, &GPIO_InitStruct);
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
   GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
@@ -576,27 +600,26 @@ void
 timer_init (void)
 {
   NVIC_InitTypeDef nvicStructure;
-  TIM_TimeBaseInitTypeDef timerInitStructure;
+  TIM_TimeBaseInitTypeDef timerInitStruct;
 
-  //Setup for interrupt roughy every minute
-  timerInitStructure.TIM_Prescaler = 0xFFFF;
-  timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  timerInitStructure.TIM_Period = 0xFFFF;
-  timerInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;
-  timerInitStructure.TIM_RepetitionCounter = 0;
-  TIM_TimeBaseInit(TIM4, &timerInitStructure);
+  //Setup for interrupt roughly every minute
+  timerInitStruct.TIM_Prescaler = 0xFFFF;
+  timerInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+  timerInitStruct.TIM_Period = 0xFFFF;
+  timerInitStruct.TIM_ClockDivision = TIM_CKD_DIV4;
+  timerInitStruct.TIM_RepetitionCounter = 0;
+  TIM_TimeBaseInit(TIM4, &timerInitStruct);
   TIM_ClearITPendingBit(TIM4, TIM_FLAG_Update);
   TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
   TIM_ARRPreloadConfig(TIM4, ENABLE);
   TIM_Cmd(TIM4, ENABLE);
 
-  // setup the timer interrupt
+  // setup the timer interrupt, minimum priority
   nvicStructure.NVIC_IRQChannel = TIM4_IRQn;
   nvicStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  nvicStructure.NVIC_IRQChannelSubPriority = 1;
+  nvicStructure.NVIC_IRQChannelSubPriority = 0;
   nvicStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&nvicStructure);
-
 }
 
 int
@@ -632,7 +655,8 @@ main (void)
   // check if there is a message to send, if so send it.
   while (1)
     {
-      if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
+
+      if (receiving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
 	//if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
 	GPIOA->BSRR = GPIO_Pin_1;
       else
@@ -644,11 +668,6 @@ main (void)
 	  messageToSend.messageReady = 0;
 	}
 
-      if (recieving || !((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
-	//if (!((CAN1->TSR & CAN_TSR_TME0) == CAN_TSR_TME0))
-	GPIOA->BSRR = GPIO_Pin_1;
-      else
-	GPIOA->BRR = GPIO_Pin_1;
 
       ///Kick the dog
       IWDG_ReloadCounter();
