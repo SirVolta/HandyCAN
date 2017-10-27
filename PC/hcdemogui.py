@@ -117,13 +117,14 @@ class HcDemoGUI(QtWidgets.QMainWindow, Ui_MainWindow):
         self.nodes = []
         self.upts = ['', '', '', '']
 
-        ser = serial.Serial('/dev/ttyUSB0',2000000, timeout=0.25)
+        ser = serial.Serial('/dev/ttyUSB0',2000000)
         ser.reset_input_buffer()
         ser.reset_output_buffer()
 
         
         ## The main HandyCAN class, set address to 0 for now
-        self.hc = pyHandyCAN.HandyCAN(0)
+        ## and enable CTS send mode
+        self.hc = pyHandyCAN.HandyCAN(0, cts=True)
         # connect the serial port and recieve function
         self.hc.init_serial(ser, self.rx)
         
@@ -173,7 +174,7 @@ class HcDemoGUI(QtWidgets.QMainWindow, Ui_MainWindow):
         intent = package.data[0]
         if intent == discover_response_intent:
             out = "Found a {} node at address {}".format(package.data[1], hex(package.source))
-            log.info(out)
+            log.debug(out)
             if not out in self.nodes:
                 self.nodes.append(out)
             self.listWidget.setText('\n'.join(self.nodes))
@@ -187,12 +188,12 @@ class HcDemoGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.upts[package.source] = out
             self.up.setText('\n'.join(self.upts))
-            log.info(out)
+            log.debug(out)
 
         if package.source == switchaddr:
             if intent == switch_change_intent or intent == get_switch_state_intent:
                 out = "switch {} on node {} is now {}".format(package.data[1], package.source, package.data[2])
-                log.info(out)
+                log.debug(out)
                 switch = package.data[1]
                 state = package.data[2]
                 if switch == 11:
@@ -224,13 +225,13 @@ class HcDemoGUI(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.motion.setPixmap(QPixmap('res/red-off-32.png'))
                     out = "Motion stopped on sensor {} of node {}".format(package.data[1], package.source)
                     
-                log.info(out)
+                log.debug(out)
 
             if intent == light_intent:
                 lightlevel = package.data[1] | (package.data[2] << 8)
                 out = "light level on node {} is {}".format(package.source, lightlevel)
                 self.lightlevel.setText(out)
-                log.info(out)
+                log.debug(out)
 
             if intent == temp_intent:
                 error = package.data[1]
@@ -249,13 +250,14 @@ class HcDemoGUI(QtWidgets.QMainWindow, Ui_MainWindow):
                     out = "DHT22 error on node{}: {}".format(package.source, error)
 
                 self.temp.setText(out)
-                log.info(out)
+                log.debug(out)
 
     
         
         
         
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     app = QApplication(sys.argv)
     ex = HcDemoGUI()
     sys.exit(app.exec_())

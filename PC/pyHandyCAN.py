@@ -34,12 +34,11 @@ An example implementation is here: hcdemo.py
 \see https://github.com/SirVolta/HandyCAN/tree/master/examples
 
 """
-
+import queue
 import logging
 import threading
+import time
 import datetime
-
-
 
 
 class HandyCANPackage(object):
@@ -61,7 +60,7 @@ class HandyCANPackage(object):
         """
         String representation of the package
         """
-        prettyOutput = "Incoming CAN packet from {} ({}) to {} ({}) with length {} Containing data {} {} ".format(
+        prettyOutput = "HandyCAN package from {} ({}) to {} ({}) with length {} Containing data {} {} ".format(
             self.source, hex(self.source),
             self.dest, hex(self.dest),
             self.length, self.data, [hex(elem) for elem in self.data])
@@ -101,9 +100,12 @@ class HandyCAN(object):
     ## This is required as the PC has no idea how many free mailboxes the interlink
     ## node still has avaliable, a temporary solution is to dramatiaclly lower the max send
     ## speed to prevent overruns. All packages must be ack'd anyways to ensure delivery.
-    minimum_time_between_packages = 1000 #microseconds
+    minimum_time_between_packages = 10000 #microseconds
+    ## A better solution to delay is to use the CTS line from the interlink node
+    ## this is set to true if it is to be used
+    cts = False
         
-    def __init__(self, own_address):
+    def __init__(self, own_address, cts=False, delay=10000):
         """
         Sets the local adress
 
@@ -112,10 +114,17 @@ class HandyCAN(object):
         """
         ## Logging class
         self.log = logging.getLogger("HandyCAN")
+        self.cts = cts
+        self.delay = delay
         ## Last time a package was sent
         self.last_package_sent_time = datetime.datetime.now()
         ## our own adress used by the send() function
         self.own_address = own_address
+        self.recieveQueue = queue.Queue()
+        self.transmitQueue = queue.Queue()
+        ## Transmit enable
+        self.txe = True
+        
         
     def init_serial(self, ser, recieveCallback):
         """
@@ -141,16 +150,55 @@ class HandyCAN(object):
         self.interlinkThread.daemon = True
         self.interlinkThread.name = 'InterlinkNode to PC'
         self.interlinkThread.start()
+        
+        self.recieveCallbackThread = threading.Thread(target=self.recieveCallbackThread)
+        self.recieveCallbackThread.daemon = True
+        self.recieveCallbackThread.name = 'InterlinkNode to PC Callback caller'
+        self.recieveCallbackThread.start()
+        
+        self.transmitThread = threading.Thread(target=self.transmitThread)
+        self.transmitThread.daemon = True
+        self.transmitThread.name = 'PC To Interlink node'
+        self.transmitThread.start()
+
+        self.log.info("Serial initialized")
+
+
+    def transmitThread(self):
+        while True:
+            if not self.cts:
+                time.sleep(0.000001) # short cpu-unload delay
+                #cts is not used, wait for the minimum time between packs
+                timediff = datetime.datetime.now() - self.last_package_sent_time
+                self.log.debug("waiting to transmit")
+                if timediff.microseconds > self.minimum_time_between_packages:
+                    message = self.transmitQueue.get(block=True, timeout=None)
+                    self.log.debug("Delay sending: {} ".format([hex(elem) for elem in message]))
+                    self.ser.write(message)
+                    self.last_package_sent_time = datetime.datetime.now()
+                    self.transmitQueue.task_done()
+            else:
+                #wait for 200 microseconds for cts line delay
+                #maximum speed: 4000 packages per second
+                time.sleep(200.0 * (10.0 ** -6))
+                if self.txe:
+                    if self.ser.cts:
+                        message = self.transmitQueue.get(block=True, timeout=None)
+                        self.log.debug("CTS Sending: {} ".format([hex(elem) for elem in message]))
+                        bytes_sent = self.ser.write(message)
+                        self.last_package_sent_time = datetime.datetime.now()
+                        self.transmitQueue.task_done()
+                        
 
     def sendPack(self, package):
         """
-        Sends a HandyCANPackage
+        Queues a HandyCANPackage for send.
 
         Args:
         package: the HandyCANPackage to send
 
         Returns:
-        The amount of bytes actually sent
+        nothing
 
         Examples:
         pack = HandyCANPackage()
@@ -160,24 +208,13 @@ class HandyCAN(object):
         pack.length = len(data)
         hc.sendPack(pack)
         """
-        
-        timediff = datetime.datetime.now() - self.last_package_sent_time
-        if timediff.microseconds < self.minimum_time_between_packages:
-            return 0
-
         try:
             message = self.encodeCANMessage(package)
         except IOError as e:
             raise e
-        self.log.debug(" Sending: {}".format([hex(elem) for elem in message]))
-        
-        bytesmessage = [elem.to_bytes(1, byteorder='big') for elem in message]
-        bytes_sent = 0
-        for byte in bytesmessage:
-            bytes_sent += self.ser.write(byte)
-            
-        self.last_package_sent_time = datetime.datetime.now()
-        return bytes_sent
+        self.log.debug("Queued for send: {} ".format([hex(elem) for elem in message]))
+        self.transmitQueue.put(list(message))
+
 
     def send(self, dest, data):
         """
@@ -191,7 +228,7 @@ class HandyCAN(object):
         Amount of bytes sent to interlink node
 
         Examples:
-        hc.send(0x03, [1, 2, 3]
+        hc.send(0x03, [1, 2, 3])
         """
         pack = HandyCANPackage()
         pack.source = self.own_address
@@ -226,14 +263,21 @@ class HandyCAN(object):
                 #check if this is the beginning of the end of the message
                 if indata == self.endsyncbyte2.to_bytes(1, byteorder='big'):
                     if previousByte == self.endsyncbyte1.to_bytes(1, byteorder='big'):
-                        #if so, decode it and call the callback
+                        #if so, place it into the queue
                         message.append(int.from_bytes(indata, byteorder='big'))
-                        package = self.decodeCANMessage(message)
-                        self.recieveCallback(package)
+                        self.recieveQueue.put(list(message))
                 # this is a data byte. append it to the package.
                 message.append(int.from_bytes(indata, byteorder='big'))                        
                 previousByte = indata
 
+    def recieveCallbackThread(self):
+        while 1:
+            # microsecond delay for safety
+            time.sleep(1.0 * 10.0 ** -6)
+            message = self.recieveQueue.get(block=True, timeout=None)
+            package = self.decodeCANMessage(message)
+            self.recieveCallback(package)
+            self.recieveQueue.task_done()
 
     
     def decodeCANMessage(self, message):
@@ -264,13 +308,15 @@ class HandyCAN(object):
         """
         pack = HandyCANPackage()
 
-        self.log.debug(" Recieved: {}".format([hex(elem) for elem in message]))
+        self.log.debug("Decoding:  {}".format([hex(elem) for elem in message]))
         
         if message[0] != self.startsyncbyte1 or message[1] != self.startsyncbyte2:
             pack.error = "not a valid handycan message: invalid header. Expected {} {} got {} {}".format(hex(self.startsyncbyte1), hex(self.startsyncbyte2), hex(message[0]), hex(message[1]))
+            self.log.error(pack.error)
             return pack
         if message[-1] != self.endsyncbyte2 or message[-2] != self.endsyncbyte1:
             pack.error = "not a valid handycan message: invalid footer. Expected {} {} got {} {}".format(hex(self.endsyncbyte1), hex(self.endsyncbyte2), hex(message[-2]), hex(message[-1]))
+            self.log.error(pack.error)
             return pack
         
         #First of all, get the data length.
@@ -285,7 +331,7 @@ class HandyCAN(object):
        
         if total_length != len(message):
             pack.error = "Invalid message length: expected {} got {} ".format(total_length, len(message))
-            log.error(pack.error)
+            self.log.error(pack.error)
             return pack
         
         # Now we need to test wether there are bytes needing decrementing
@@ -386,7 +432,7 @@ if __name__ == "__main__":
     """
     Now run some tests and demos
     """
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     import doctest
     import time
     doctest.testmod()

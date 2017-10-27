@@ -25,7 +25,7 @@ import logging
 import pyHandyCAN
 import time
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 ## get a logger
 log = logging.getLogger("hcdemo")
 
