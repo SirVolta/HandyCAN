@@ -1,7 +1,7 @@
 # Protocol Documentation
 Here is where I go into full detail of both the HandyCAN protocol and the interlink node UART protocol.  
 
-Copyright (c) Pelle Jansen.
+Copyright (c) Pelle Jansen.  
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3
 or any later version published by the Free Software Foundation;
