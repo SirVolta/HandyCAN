@@ -402,13 +402,14 @@ HandyCAN_dumpRxPackage (struct HandyCAN_package* package)
 {
   if (package->dest_adress == HC_BROADCAST_ADDR)
     {
-      trace_printf("Incoming BROADCAST from %#x with intent: %u\n",
+      trace_printf("HandyCAN: BROADCAST from %#x with intent: %u\n",
 		   package->source_adress, package->data[0]);
     }
   else
     {
-      trace_printf("Received message from %#x with intent: %u\n",
-		   package->source_adress, package->data[0]);
+      trace_printf("HandyCAN: message from %#x to %#x with intent: %u\n",
+		   package->source_adress, package->dest_adress,
+		   package->data[0]);
     }
 
   for (uint8_t i = 1; i < package->len; i++)
