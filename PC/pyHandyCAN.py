@@ -120,8 +120,12 @@ class HandyCAN(object):
         self.last_package_sent_time = datetime.datetime.now()
         ## our own adress used by the send() function
         self.own_address = own_address
-        self.recieveQueue = queue.Queue()
-        self.transmitQueue = queue.Queue()
+        ## The recieve queue. Recieved messages will be put in here for processing
+        self.recieveQueue = queue.Queue(maxsize=10000)
+        ## Holds a package before it is transmitted.
+        ## In both cases, the maxsize is only to prevent memory leak in case of failure.
+        ## It should never hold more than a couple of pacakges/messages.
+        self.transmitQueue = queue.Queue(maxsize=10000)
         ## Transmit enable
         self.txe = True
         
@@ -276,7 +280,8 @@ class HandyCAN(object):
             time.sleep(1.0 * 10.0 ** -6)
             message = self.recieveQueue.get(block=True, timeout=None)
             package = self.decodeCANMessage(message)
-            self.recieveCallback(package)
+            if package.source != self.own_address:
+                self.recieveCallback(package)
             self.recieveQueue.task_done()
 
     

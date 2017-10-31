@@ -25,7 +25,7 @@ import logging
 import pyHandyCAN
 import time
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 ## get a logger
 log = logging.getLogger("hcdemo")
 
@@ -53,13 +53,15 @@ if __name__ == "__main__":
         if package.error:
             print("error: ", package.error)
             return
+
+        if package.data != [3, 12, 1]:
+            log.warning(package)
+        #dat = package.data[4]
         
-        dat = package.data[4]
-        
-        if dat != previousDat +1 and dat !=0 and previousDat != 255:
-            log.warning (" Overrun detected: {} {}".format( dat, previousDat))
-        previousDat = dat
-        log.info(package)
+        #if dat != previousDat +1 and dat !=0 and previousDat != 255:
+        #    log.warning (" Overrun detected: {} {}".format( dat, previousDat))
+        #previousDat = dat
+        #log.info(package)
 
     ## The main HandyCAN class, set address to 0 for now
     hc = pyHandyCAN.HandyCAN(0, cts=True)
@@ -69,8 +71,8 @@ if __name__ == "__main__":
     while 1:
         time.sleep (1);
         hc.txe=False
-        for i in range(100):
-            hc.send(0x01, [2, 0, 0xE0, 0xEE])
+        for i in range(2000):
+            hc.send(0x01, [3, 12])
         hc.txe=True
         continue
         try:
