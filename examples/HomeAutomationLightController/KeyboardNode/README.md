@@ -27,7 +27,8 @@ Example: [0x1A, 'J', 'o', 'h', 'n'] in response of broadcast of 0x1A.
 This first version only has part of the functionality I want to include in the real keyboard node.  
 It will have: 
 - Command sending to interlink at address 0
-- Chat to all connected keyboard nodes
+- Chat to all connected keyboard nodes  
+
 To be added later in the form of an external advanced chat library:
 - One to one chat, select able from list of keyboard nodes
 - Proper notifications
