@@ -19,7 +19,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">pyHandyCAN
-   &#160;<span id="projectnumber">0.1</span>
+   &#160;<span id="projectnumber">1.0</span>
    </div>
   </td>
  </tr>
@@ -67,14 +67,16 @@ Collaboration diagram for pyHandyCAN.HandyCAN:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ada2be8b432a093bfee7f4040d1cfbea9"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#ada2be8b432a093bfee7f4040d1cfbea9">__init__</a> (self, <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#ab0223d9851b2ec926c0152d1c0272a40">own_address</a>)</td></tr>
-<tr class="memdesc:ada2be8b432a093bfee7f4040d1cfbea9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the local adress.  <a href="#ada2be8b432a093bfee7f4040d1cfbea9">More...</a><br /></td></tr>
-<tr class="separator:ada2be8b432a093bfee7f4040d1cfbea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0b828904f4566b3cd5f8584e5053714"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#af0b828904f4566b3cd5f8584e5053714">__init__</a> (self, <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#ab0223d9851b2ec926c0152d1c0272a40">own_address</a>, <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#af5bf768707879f16cdc268b607d154c9">cts</a>=False, <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a3d20f1951eee6722d86abd96813927ae">delay</a>=10000)</td></tr>
+<tr class="memdesc:af0b828904f4566b3cd5f8584e5053714"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the local adress.  <a href="#af0b828904f4566b3cd5f8584e5053714">More...</a><br /></td></tr>
+<tr class="separator:af0b828904f4566b3cd5f8584e5053714"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affff63b38db5eb9976fa39d59864355e"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#affff63b38db5eb9976fa39d59864355e">init_serial</a> (self, <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a92959a01cdbc4c219aee618c800cf1c3">ser</a>, <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a9d99de023827cff9ce3a921a98b08fd6">recieveCallback</a>)</td></tr>
 <tr class="memdesc:affff63b38db5eb9976fa39d59864355e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the serial port.  <a href="#affff63b38db5eb9976fa39d59864355e">More...</a><br /></td></tr>
 <tr class="separator:affff63b38db5eb9976fa39d59864355e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a200d508c6080c3a3f15f8b11943779a0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a200d508c6080c3a3f15f8b11943779a0">transmitThread</a> (self)</td></tr>
+<tr class="separator:a200d508c6080c3a3f15f8b11943779a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a867c892caebe390ddcd8cca23184ad59"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a867c892caebe390ddcd8cca23184ad59">sendPack</a> (self, package)</td></tr>
-<tr class="memdesc:a867c892caebe390ddcd8cca23184ad59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends a <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a>.  <a href="#a867c892caebe390ddcd8cca23184ad59">More...</a><br /></td></tr>
+<tr class="memdesc:a867c892caebe390ddcd8cca23184ad59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queues a <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a> for send.  <a href="#a867c892caebe390ddcd8cca23184ad59">More...</a><br /></td></tr>
 <tr class="separator:a867c892caebe390ddcd8cca23184ad59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24f1c7fd21cb0f00e71d9a2400e5fc8f"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a24f1c7fd21cb0f00e71d9a2400e5fc8f">send</a> (self, dest, data)</td></tr>
 <tr class="memdesc:a24f1c7fd21cb0f00e71d9a2400e5fc8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends data to a node.  <a href="#a24f1c7fd21cb0f00e71d9a2400e5fc8f">More...</a><br /></td></tr>
@@ -82,6 +84,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a63f69ad3ca5a202f6400f90d69252b62"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a63f69ad3ca5a202f6400f90d69252b62">recieveThread</a> (self)</td></tr>
 <tr class="memdesc:a63f69ad3ca5a202f6400f90d69252b62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs in the background, recieving bytes from the interlink node.  <a href="#a63f69ad3ca5a202f6400f90d69252b62">More...</a><br /></td></tr>
 <tr class="separator:a63f69ad3ca5a202f6400f90d69252b62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fea98af286c6f2ca894c9db1e69a17f"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a6fea98af286c6f2ca894c9db1e69a17f">recieveCallbackThread</a> (self)</td></tr>
+<tr class="separator:a6fea98af286c6f2ca894c9db1e69a17f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ce0be38fd076a9dccae5dda7f9e83e8"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a5ce0be38fd076a9dccae5dda7f9e83e8">decodeCANMessage</a> (self, message)</td></tr>
 <tr class="memdesc:a5ce0be38fd076a9dccae5dda7f9e83e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Takes a interlink protocol message and converts it into <a class="el" href="classpyHandyCAN_1_1HandyCAN.html" title="Handles both the HandyCAN and the interlink protocol. ">HandyCAN</a>.  <a href="#a5ce0be38fd076a9dccae5dda7f9e83e8">More...</a><br /></td></tr>
 <tr class="separator:a5ce0be38fd076a9dccae5dda7f9e83e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -94,12 +98,25 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a9847e98a064aa036cdb00dd8416ebc55"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a9847e98a064aa036cdb00dd8416ebc55">log</a></td></tr>
 <tr class="memdesc:a9847e98a064aa036cdb00dd8416ebc55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logging class.  <a href="#a9847e98a064aa036cdb00dd8416ebc55">More...</a><br /></td></tr>
 <tr class="separator:a9847e98a064aa036cdb00dd8416ebc55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa70ba3a8dd5b1b440a51bf9a8afafcfd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#aa70ba3a8dd5b1b440a51bf9a8afafcfd">cts</a></td></tr>
+<tr class="separator:aa70ba3a8dd5b1b440a51bf9a8afafcfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d20f1951eee6722d86abd96813927ae"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a3d20f1951eee6722d86abd96813927ae">delay</a></td></tr>
+<tr class="separator:a3d20f1951eee6722d86abd96813927ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a708b4557eae20c8b1e67d330eea5cdf7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a708b4557eae20c8b1e67d330eea5cdf7">last_package_sent_time</a></td></tr>
 <tr class="memdesc:a708b4557eae20c8b1e67d330eea5cdf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last time a package was sent.  <a href="#a708b4557eae20c8b1e67d330eea5cdf7">More...</a><br /></td></tr>
 <tr class="separator:a708b4557eae20c8b1e67d330eea5cdf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0223d9851b2ec926c0152d1c0272a40"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#ab0223d9851b2ec926c0152d1c0272a40">own_address</a></td></tr>
 <tr class="memdesc:ab0223d9851b2ec926c0152d1c0272a40"><td class="mdescLeft">&#160;</td><td class="mdescRight">our own adress used by the <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a24f1c7fd21cb0f00e71d9a2400e5fc8f" title="Sends data to a node. ">send()</a> function  <a href="#ab0223d9851b2ec926c0152d1c0272a40">More...</a><br /></td></tr>
 <tr class="separator:ab0223d9851b2ec926c0152d1c0272a40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add8fbc5ccd4000de48b138a5202b2e3d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#add8fbc5ccd4000de48b138a5202b2e3d">recieveQueue</a></td></tr>
+<tr class="memdesc:add8fbc5ccd4000de48b138a5202b2e3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The recieve queue.  <a href="#add8fbc5ccd4000de48b138a5202b2e3d">More...</a><br /></td></tr>
+<tr class="separator:add8fbc5ccd4000de48b138a5202b2e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2914ba4145a94708c51d68091ed233b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#ac2914ba4145a94708c51d68091ed233b">transmitQueue</a></td></tr>
+<tr class="memdesc:ac2914ba4145a94708c51d68091ed233b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds a package before it is transmitted.  <a href="#ac2914ba4145a94708c51d68091ed233b">More...</a><br /></td></tr>
+<tr class="separator:ac2914ba4145a94708c51d68091ed233b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd9848b678c9d488d80b2ec08cf59266"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#acd9848b678c9d488d80b2ec08cf59266">txe</a></td></tr>
+<tr class="memdesc:acd9848b678c9d488d80b2ec08cf59266"><td class="mdescLeft">&#160;</td><td class="mdescRight">Transmit enable.  <a href="#acd9848b678c9d488d80b2ec08cf59266">More...</a><br /></td></tr>
+<tr class="separator:acd9848b678c9d488d80b2ec08cf59266"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d99de023827cff9ce3a921a98b08fd6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a9d99de023827cff9ce3a921a98b08fd6">recieveCallback</a></td></tr>
 <tr class="memdesc:a9d99de023827cff9ce3a921a98b08fd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">the function to be called when a valid package has arrived  <a href="#a9d99de023827cff9ce3a921a98b08fd6">More...</a><br /></td></tr>
 <tr class="separator:a9d99de023827cff9ce3a921a98b08fd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -109,6 +126,10 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:aa1c53a7968ebc27562c4f48d02601b43"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#aa1c53a7968ebc27562c4f48d02601b43">interlinkThread</a></td></tr>
 <tr class="memdesc:aa1c53a7968ebc27562c4f48d02601b43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serial data recieve thread.  <a href="#aa1c53a7968ebc27562c4f48d02601b43">More...</a><br /></td></tr>
 <tr class="separator:aa1c53a7968ebc27562c4f48d02601b43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe2e7ca61019065dd0ac3774dd212b20"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#abe2e7ca61019065dd0ac3774dd212b20">recieveCallbackThread</a></td></tr>
+<tr class="separator:abe2e7ca61019065dd0ac3774dd212b20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6bd6e9052f8a6f5191664a4f5f95e1a9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a6bd6e9052f8a6f5191664a4f5f95e1a9">transmitThread</a></td></tr>
+<tr class="separator:a6bd6e9052f8a6f5191664a4f5f95e1a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -142,18 +163,21 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a1a3d079bbc0ee6892ef8dd6bbb55b919"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a1a3d079bbc0ee6892ef8dd6bbb55b919">sourceoffset</a> = 5</td></tr>
 <tr class="memdesc:a1a3d079bbc0ee6892ef8dd6bbb55b919"><td class="mdescLeft">&#160;</td><td class="mdescRight">offset of the source bits in a STDID <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a>  <a href="#a1a3d079bbc0ee6892ef8dd6bbb55b919">More...</a><br /></td></tr>
 <tr class="separator:a1a3d079bbc0ee6892ef8dd6bbb55b919"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a710689fc2925b43c97d1fb65ba1d3b8e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a710689fc2925b43c97d1fb65ba1d3b8e">minimum_time_between_packages</a> = 1000</td></tr>
+<tr class="memitem:a710689fc2925b43c97d1fb65ba1d3b8e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a710689fc2925b43c97d1fb65ba1d3b8e">minimum_time_between_packages</a> = 10000</td></tr>
 <tr class="memdesc:a710689fc2925b43c97d1fb65ba1d3b8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum time between output packages in microseconds.  <a href="#a710689fc2925b43c97d1fb65ba1d3b8e">More...</a><br /></td></tr>
 <tr class="separator:a710689fc2925b43c97d1fb65ba1d3b8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5bf768707879f16cdc268b607d154c9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyHandyCAN_1_1HandyCAN.html#af5bf768707879f16cdc268b607d154c9">cts</a> = False</td></tr>
+<tr class="memdesc:af5bf768707879f16cdc268b607d154c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">A better solution to delay is to use the CTS line from the interlink node this is set to true if it is to be used.  <a href="#af5bf768707879f16cdc268b607d154c9">More...</a><br /></td></tr>
+<tr class="separator:af5bf768707879f16cdc268b607d154c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Handles both the <a class="el" href="classpyHandyCAN_1_1HandyCAN.html" title="Handles both the HandyCAN and the interlink protocol. ">HandyCAN</a> and the interlink protocol. </p>
 <p>It allows sending and recieving <a class="el" href="classpyHandyCAN_1_1HandyCAN.html" title="Handles both the HandyCAN and the interlink protocol. ">HandyCAN</a> packages through a serial port connected to a interlink node. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00079">79</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00078">78</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ada2be8b432a093bfee7f4040d1cfbea9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ada2be8b432a093bfee7f4040d1cfbea9">&#9670;&nbsp;</a></span>__init__()</h2>
+<a id="af0b828904f4566b3cd5f8584e5053714"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0b828904f4566b3cd5f8584e5053714">&#9670;&nbsp;</a></span>__init__()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -168,7 +192,19 @@ Static Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>own_address</em>&#160;</td>
+          <td class="paramname"><em>own_address</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>cts</em> = <code>False</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>delay</em> = <code>10000</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -180,7 +216,7 @@ Static Public Attributes</h2></td></tr>
 
 <p>Sets the local adress. </p>
 <p><b>Examples</b> </p><div class="fragment"><div class="line">hc = <a class="code" href="classpyHandyCAN_1_1HandyCAN.html">HandyCAN</a>(0x0)</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00114">114</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00116">116</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
 </div>
 </div>
@@ -220,17 +256,17 @@ Static Public Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="classpyHandyCAN_1_1HandyCAN.html" title="Handles both the HandyCAN and the interlink protocol. ">HandyCAN</a> package</dd></dl>
 <p><b>Examples</b> </p><div class="fragment"><div class="line">&gt;&gt;&gt; message = [240, 250, 6, 2, 34, 0, 0, 240, 251, 0, 224, 239, 8, 11, 224, 238]</div><div class="line">&gt;&gt;&gt; hc = <a class="code" href="classpyHandyCAN_1_1HandyCAN.html">HandyCAN</a>(0)</div><div class="line">&gt;&gt;&gt; pack = hc.decodeCANMessage(message)</div><div class="line">&gt;&gt;&gt; pack.length == 6</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; pack.data == [0, 0xF0, 0xFA, 0, 0xE0, 0xEE]</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; pack.source == 1</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; pack.dest == 2</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; hc.encodeCANMessage(pack)</div><div class="line">[240, 250, 6, 2, 34, 0, 0, 240, 251, 0, 224, 239, 8, 11, 224, 238]</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00274">274</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00323">323</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00091">pyHandyCAN.HandyCAN.checklenidx</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00097">pyHandyCAN.HandyCAN.dataidx</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00085">pyHandyCAN.HandyCAN.endsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00087">pyHandyCAN.HandyCAN.endsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00089">pyHandyCAN.HandyCAN.lenidx</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00116">pyHandyCAN.HandyCAN.log</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00081">pyHandyCAN.HandyCAN.startsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00083">pyHandyCAN.HandyCAN.startsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00095">pyHandyCAN.HandyCAN.StdIdHidx</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00093">pyHandyCAN.HandyCAN.StdIdLidx</a>.</p>
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00090">pyHandyCAN.HandyCAN.checklenidx</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00096">pyHandyCAN.HandyCAN.dataidx</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00084">pyHandyCAN.HandyCAN.endsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00086">pyHandyCAN.HandyCAN.endsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00088">pyHandyCAN.HandyCAN.lenidx</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00118">pyHandyCAN.HandyCAN.log</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00080">pyHandyCAN.HandyCAN.startsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00082">pyHandyCAN.HandyCAN.startsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00094">pyHandyCAN.HandyCAN.StdIdHidx</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00092">pyHandyCAN.HandyCAN.StdIdLidx</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00285">pyHandyCAN.HandyCAN.recieveCallbackThread()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classpyHandyCAN_1_1HandyCAN_a5ce0be38fd076a9dccae5dda7f9e83e8_icgraph.png" border="0" usemap="#classpyHandyCAN_1_1HandyCAN_a5ce0be38fd076a9dccae5dda7f9e83e8_icgraph" alt=""/></div>
 <map name="classpyHandyCAN_1_1HandyCAN_a5ce0be38fd076a9dccae5dda7f9e83e8_icgraph" id="classpyHandyCAN_1_1HandyCAN_a5ce0be38fd076a9dccae5dda7f9e83e8_icgraph">
-<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a63f69ad3ca5a202f6400f90d69252b62" title="Runs in the background, recieving bytes from the interlink node. " alt="" coords="287,5,521,47"/>
+<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a6fea98af286c6f2ca894c9db1e69a17f" title="pyHandyCAN.HandyCAN.recieve\lCallbackThread" alt="" coords="287,5,521,47"/>
 </map>
 </div>
 
@@ -271,17 +307,17 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Interlink message</dd></dl>
 <p><b>Examples</b> </p><div class="fragment"><div class="line">&gt;&gt;&gt; hcp = <a class="code" href="classpyHandyCAN_1_1HandyCANPackage.html">HandyCANPackage</a>()</div><div class="line">&gt;&gt;&gt; hcp.length = 6</div><div class="line">&gt;&gt;&gt; hcp.data = [0, 0xF0, 0xFA, 0, 0xE0, 0xEE]</div><div class="line">&gt;&gt;&gt; hcp.source = 1</div><div class="line">&gt;&gt;&gt; hcp.dest = 2</div><div class="line">&gt;&gt;&gt; hc = <a class="code" href="classpyHandyCAN_1_1HandyCAN.html">HandyCAN</a>(0)</div><div class="line">&gt;&gt;&gt; hc.encodeCANMessage(hcp)</div><div class="line">[240, 250, 6, 2, 34, 0, 0, 240, 251, 0, 224, 239, 8, 11, 224, 238]</div><div class="line">&gt;&gt;&gt; msg = hc.encodeCANMessage(hcp)</div><div class="line">&gt;&gt;&gt; hcp2 = hc.decodeCANMessage(msg)</div><div class="line">&gt;&gt;&gt; hcp.length == 6</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; hcp.data == [0, 0xF0, 0xFA, 0, 0xE0, 0xEE]</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; hcp.source == 1</div><div class="line"><span class="keyword">True</span></div><div class="line">&gt;&gt;&gt; hcp.dest == 2</div><div class="line"><span class="keyword">True</span></div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00359">359</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00410">410</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00085">pyHandyCAN.HandyCAN.endsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00087">pyHandyCAN.HandyCAN.endsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00099">pyHandyCAN.HandyCAN.sourceoffset</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00081">pyHandyCAN.HandyCAN.startsyncbyte1</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00083">pyHandyCAN.HandyCAN.startsyncbyte2</a>.</p>
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00084">pyHandyCAN.HandyCAN.endsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00086">pyHandyCAN.HandyCAN.endsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00098">pyHandyCAN.HandyCAN.sourceoffset</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00080">pyHandyCAN.HandyCAN.startsyncbyte1</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00082">pyHandyCAN.HandyCAN.startsyncbyte2</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00168">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00220">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classpyHandyCAN_1_1HandyCAN_afa2dfbf5f2aa296be7ab69c8c2b816a5_icgraph.png" border="0" usemap="#classpyHandyCAN_1_1HandyCAN_afa2dfbf5f2aa296be7ab69c8c2b816a5_icgraph" alt=""/></div>
 <map name="classpyHandyCAN_1_1HandyCAN_afa2dfbf5f2aa296be7ab69c8c2b816a5_icgraph" id="classpyHandyCAN_1_1HandyCAN_afa2dfbf5f2aa296be7ab69c8c2b816a5_icgraph">
-<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a867c892caebe390ddcd8cca23184ad59" title="Sends a HandyCANPackage. " alt="" coords="287,13,533,39"/>
+<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a867c892caebe390ddcd8cca23184ad59" title="Queues a HandyCANPackage for send. " alt="" coords="287,13,533,39"/>
 <area shape="rect" id="node3" href="classpyHandyCAN_1_1HandyCAN.html#a24f1c7fd21cb0f00e71d9a2400e5fc8f" title="Sends data to a node. " alt="" coords="581,13,799,39"/>
 </map>
 </div>
@@ -329,7 +365,37 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 <p><b>Examples</b> </p><div class="fragment"><div class="line">&gt;&gt;&gt; <span class="keyword">def </span><a class="code" href="namespacehcdemo.html#a1c8cd0b47b76f1a1d6cd7662ab31fc63">rx</a>(message):\</div><div class="line">  <span class="keywordflow">print</span> (message)</div><div class="line"></div><div class="line">ser = serial.Serial(<span class="stringliteral">&#39;/dev/ttyUSB0&#39;</span>,2000000, timeout=0.25)</div><div class="line">hc.init_serial(ser, rx)</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00138">138</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00151">151</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+</div>
+</div>
+<a id="a6fea98af286c6f2ca894c9db1e69a17f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fea98af286c6f2ca894c9db1e69a17f">&#9670;&nbsp;</a></span>recieveCallbackThread()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def pyHandyCAN.HandyCAN.recieveCallbackThread </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00285">285</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00124">pyHandyCAN.HandyCAN.own_address</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00153">pyHandyCAN.HandyCAN.recieveCallback</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00162">pyHandyCAN.HandyCAN.recieveCallbackThread</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00126">pyHandyCAN.HandyCAN.recieveQueue</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="classpyHandyCAN_1_1HandyCAN_a6fea98af286c6f2ca894c9db1e69a17f_cgraph.png" border="0" usemap="#classpyHandyCAN_1_1HandyCAN_a6fea98af286c6f2ca894c9db1e69a17f_cgraph" alt=""/></div>
+<map name="classpyHandyCAN_1_1HandyCAN_a6fea98af286c6f2ca894c9db1e69a17f_cgraph" id="classpyHandyCAN_1_1HandyCAN_a6fea98af286c6f2ca894c9db1e69a17f_cgraph">
+<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a5ce0be38fd076a9dccae5dda7f9e83e8" title="Takes a interlink protocol message and converts it into HandyCAN. " alt="" coords="288,5,521,47"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -352,17 +418,9 @@ Here is the caller graph for this function:</div>
 <p>Runs in the background, recieving bytes from the interlink node. </p>
 <p>When a valid message is detected, it calls the callback </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00221">221</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00262">262</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00085">pyHandyCAN.HandyCAN.endsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00087">pyHandyCAN.HandyCAN.endsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00140">pyHandyCAN.HandyCAN.recieveCallback</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00142">pyHandyCAN.HandyCAN.ser</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00081">pyHandyCAN.HandyCAN.startsyncbyte1</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00083">pyHandyCAN.HandyCAN.startsyncbyte2</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classpyHandyCAN_1_1HandyCAN_a63f69ad3ca5a202f6400f90d69252b62_cgraph.png" border="0" usemap="#classpyHandyCAN_1_1HandyCAN_a63f69ad3ca5a202f6400f90d69252b62_cgraph" alt=""/></div>
-<map name="classpyHandyCAN_1_1HandyCAN_a63f69ad3ca5a202f6400f90d69252b62_cgraph" id="classpyHandyCAN_1_1HandyCAN_a63f69ad3ca5a202f6400f90d69252b62_cgraph">
-<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a5ce0be38fd076a9dccae5dda7f9e83e8" title="Takes a interlink protocol message and converts it into HandyCAN. " alt="" coords="288,5,521,47"/>
-</map>
-</div>
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00084">pyHandyCAN.HandyCAN.endsyncbyte1</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00086">pyHandyCAN.HandyCAN.endsyncbyte2</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00126">pyHandyCAN.HandyCAN.recieveQueue</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00155">pyHandyCAN.HandyCAN.ser</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00080">pyHandyCAN.HandyCAN.startsyncbyte1</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00082">pyHandyCAN.HandyCAN.startsyncbyte2</a>.</p>
 
 </div>
 </div>
@@ -407,16 +465,16 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Amount of bytes sent to interlink node</dd></dl>
-<p><b>Examples</b> </p><div class="fragment"><div class="line">hc.send(0x03, [1, 2, 3]</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00203">203</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p><b>Examples</b> </p><div class="fragment"><div class="line">hc.send(0x03, [1, 2, 3])</div></div><!-- fragment --> 
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00244">244</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00120">pyHandyCAN.HandyCAN.own_address</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00168">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00124">pyHandyCAN.HandyCAN.own_address</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00220">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classpyHandyCAN_1_1HandyCAN_a24f1c7fd21cb0f00e71d9a2400e5fc8f_cgraph.png" border="0" usemap="#classpyHandyCAN_1_1HandyCAN_a24f1c7fd21cb0f00e71d9a2400e5fc8f_cgraph" alt=""/></div>
 <map name="classpyHandyCAN_1_1HandyCAN_a24f1c7fd21cb0f00e71d9a2400e5fc8f_cgraph" id="classpyHandyCAN_1_1HandyCAN_a24f1c7fd21cb0f00e71d9a2400e5fc8f_cgraph">
-<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a867c892caebe390ddcd8cca23184ad59" title="Sends a HandyCANPackage. " alt="" coords="271,13,517,39"/>
+<area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a867c892caebe390ddcd8cca23184ad59" title="Queues a HandyCANPackage for send. " alt="" coords="271,13,517,39"/>
 <area shape="rect" id="node3" href="classpyHandyCAN_1_1HandyCAN.html#afa2dfbf5f2aa296be7ab69c8c2b816a5" title="Takes a HandyCANPackage and converts it into a interlink message. " alt="" coords="565,5,799,47"/>
 <area shape="rect" id="node4" href="namespacehcdemo.html#a1c8cd0b47b76f1a1d6cd7662ab31fc63" title="Called by the HandyCAN library when a package arrives. " alt="" coords="847,13,937,39"/>
 </map>
@@ -450,20 +508,22 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p>Sends a <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a>. </p>
+<p>Queues a <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a> for send. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">package</td><td>the <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a> to send</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The amount of bytes actually sent</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd></dd>
+<dd>
+nothing</dd></dl>
 <p><b>Examples</b> </p><div class="fragment"><div class="line">pack = <a class="code" href="classpyHandyCAN_1_1HandyCANPackage.html">HandyCANPackage</a>()</div><div class="line">pack.source = 0x00</div><div class="line">pack.dest = 0x03</div><div class="line">pack.data = [1, 2, 3]</div><div class="line">pack.length = len(data)</div><div class="line">hc.sendPack(pack)</div></div><!-- fragment --> 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00168">168</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00220">220</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00359">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00118">pyHandyCAN.HandyCAN.last_package_sent_time</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00116">pyHandyCAN.HandyCAN.log</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00104">pyHandyCAN.HandyCAN.minimum_time_between_packages</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00142">pyHandyCAN.HandyCAN.ser</a>.</p>
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00410">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00118">pyHandyCAN.HandyCAN.log</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00130">pyHandyCAN.HandyCAN.transmitQueue</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00203">pyHandyCAN.HandyCAN.send()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00244">pyHandyCAN.HandyCAN.send()</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -481,6 +541,28 @@ Here is the caller graph for this function:</div>
 <area shape="rect" id="node2" href="classpyHandyCAN_1_1HandyCAN.html#a24f1c7fd21cb0f00e71d9a2400e5fc8f" title="Sends data to a node. " alt="" coords="300,5,517,32"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="a200d508c6080c3a3f15f8b11943779a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a200d508c6080c3a3f15f8b11943779a0">&#9670;&nbsp;</a></span>transmitThread()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def pyHandyCAN.HandyCAN.transmitThread </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00175">175</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">References <a class="el" href="pyHandyCAN_8py_source.html#l00106">pyHandyCAN.HandyCAN.cts</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00122">pyHandyCAN.HandyCAN.last_package_sent_time</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00118">pyHandyCAN.HandyCAN.log</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00103">pyHandyCAN.HandyCAN.minimum_time_between_packages</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00155">pyHandyCAN.HandyCAN.ser</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00130">pyHandyCAN.HandyCAN.transmitQueue</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00167">pyHandyCAN.HandyCAN.transmitThread</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00132">pyHandyCAN.HandyCAN.txe</a>.</p>
 
 </div>
 </div>
@@ -507,9 +589,53 @@ Here is the caller graph for this function:</div>
 
 <p>index of the amount of check bytes in a interlink message </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00091">91</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00090">90</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+
+</div>
+</div>
+<a id="af5bf768707879f16cdc268b607d154c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5bf768707879f16cdc268b607d154c9">&#9670;&nbsp;</a></span>cts <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool pyHandyCAN.HandyCAN.cts = False</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A better solution to delay is to use the CTS line from the interlink node this is set to true if it is to be used. </p>
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00106">106</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
+
+</div>
+</div>
+<a id="aa70ba3a8dd5b1b440a51bf9a8afafcfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa70ba3a8dd5b1b440a51bf9a8afafcfd">&#9670;&nbsp;</a></span>cts <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.cts</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00119">119</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
 </div>
 </div>
@@ -535,9 +661,25 @@ Here is the caller graph for this function:</div>
 
 <p>index of the start of the data in a interlink message </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00097">97</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00096">96</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+
+</div>
+</div>
+<a id="a3d20f1951eee6722d86abd96813927ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d20f1951eee6722d86abd96813927ae">&#9670;&nbsp;</a></span>delay</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.delay</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00120">120</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
 </div>
 </div>
@@ -563,9 +705,9 @@ Here is the caller graph for this function:</div>
 
 <p>Indicates the end of a interlink message. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00085">85</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00084">84</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00359">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00410">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00262">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
 
 </div>
 </div>
@@ -591,9 +733,9 @@ Here is the caller graph for this function:</div>
 
 <p>Must come right after <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a85f8e5de2a89db7c6476479de306d62c" title="Indicates the end of a interlink message. ">endsyncbyte1</a> to indicate end. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00087">87</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00086">86</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00359">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00410">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00262">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
 
 </div>
 </div>
@@ -611,7 +753,7 @@ Here is the caller graph for this function:</div>
 
 <p>Serial data recieve thread. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00144">144</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00157">157</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
 </div>
 </div>
@@ -629,9 +771,9 @@ Here is the caller graph for this function:</div>
 
 <p>Last time a package was sent. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00118">118</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00122">122</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00168">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
 
 </div>
 </div>
@@ -657,9 +799,9 @@ Here is the caller graph for this function:</div>
 
 <p>Index of the length byte in interlink message. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00089">89</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00088">88</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
 
 </div>
 </div>
@@ -677,9 +819,9 @@ Here is the caller graph for this function:</div>
 
 <p>Logging class. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00116">116</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00118">118</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00168">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00220">pyHandyCAN.HandyCAN.sendPack()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
 
 </div>
 </div>
@@ -693,7 +835,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">int pyHandyCAN.HandyCAN.minimum_time_between_packages = 1000</td>
+          <td class="memname">int pyHandyCAN.HandyCAN.minimum_time_between_packages = 10000</td>
         </tr>
       </table>
   </td>
@@ -707,9 +849,9 @@ Here is the caller graph for this function:</div>
 <p><br />
  This is required as the PC has no idea how many free mailboxes the interlink node still has avaliable, a temporary solution is to dramatiaclly lower the max send speed to prevent overruns. All packages must be ack'd anyways to ensure delivery. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00104">104</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00103">103</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00168">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
 
 </div>
 </div>
@@ -727,9 +869,9 @@ Here is the caller graph for this function:</div>
 
 <p>our own adress used by the <a class="el" href="classpyHandyCAN_1_1HandyCAN.html#a24f1c7fd21cb0f00e71d9a2400e5fc8f" title="Sends data to a node. ">send()</a> function </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00120">120</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00124">124</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00203">pyHandyCAN.HandyCAN.send()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00285">pyHandyCAN.HandyCAN.recieveCallbackThread()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00244">pyHandyCAN.HandyCAN.send()</a>.</p>
 
 </div>
 </div>
@@ -747,9 +889,48 @@ Here is the caller graph for this function:</div>
 
 <p>the function to be called when a valid package has arrived </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00140">140</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00153">153</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00285">pyHandyCAN.HandyCAN.recieveCallbackThread()</a>.</p>
+
+</div>
+</div>
+<a id="abe2e7ca61019065dd0ac3774dd212b20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe2e7ca61019065dd0ac3774dd212b20">&#9670;&nbsp;</a></span>recieveCallbackThread</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.recieveCallbackThread</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00162">162</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00285">pyHandyCAN.HandyCAN.recieveCallbackThread()</a>.</p>
+
+</div>
+</div>
+<a id="add8fbc5ccd4000de48b138a5202b2e3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add8fbc5ccd4000de48b138a5202b2e3d">&#9670;&nbsp;</a></span>recieveQueue</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.recieveQueue</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The recieve queue. </p>
+<p>Recieved messages will be put in here for processing </p>
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00126">126</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00285">pyHandyCAN.HandyCAN.recieveCallbackThread()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00262">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
 
 </div>
 </div>
@@ -767,9 +948,9 @@ Here is the caller graph for this function:</div>
 
 <p>the serial port connected to the interlink node </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00142">142</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00155">155</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00168">pyHandyCAN.HandyCAN.sendPack()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00262">pyHandyCAN.HandyCAN.recieveThread()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
 
 </div>
 </div>
@@ -795,9 +976,9 @@ Here is the caller graph for this function:</div>
 
 <p>offset of the source bits in a STDID <a class="el" href="classpyHandyCAN_1_1HandyCANPackage.html" title="Represents one HandyCANPackage. ">HandyCANPackage</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00099">99</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00098">98</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00359">pyHandyCAN.HandyCAN.encodeCANMessage()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00410">pyHandyCAN.HandyCAN.encodeCANMessage()</a>.</p>
 
 </div>
 </div>
@@ -823,9 +1004,9 @@ Here is the caller graph for this function:</div>
 
 <p>Always the first byte of a interlink mesage. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00081">81</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00080">80</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00359">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00410">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00262">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
 
 </div>
 </div>
@@ -851,9 +1032,9 @@ Here is the caller graph for this function:</div>
 
 <p>Always the secondbyte of a interlink mesage. </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00083">83</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00082">82</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00359">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00221">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>, <a class="el" href="pyHandyCAN_8py_source.html#l00410">pyHandyCAN.HandyCAN.encodeCANMessage()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00262">pyHandyCAN.HandyCAN.recieveThread()</a>.</p>
 
 </div>
 </div>
@@ -879,9 +1060,9 @@ Here is the caller graph for this function:</div>
 
 <p>index of the StdId high byte in a interlink message </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00095">95</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00094">94</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
 
 </div>
 </div>
@@ -907,9 +1088,68 @@ Here is the caller graph for this function:</div>
 
 <p>index of the StdId low byte in a interlink message </p>
 
-<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00093">93</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00092">92</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00274">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00323">pyHandyCAN.HandyCAN.decodeCANMessage()</a>.</p>
+
+</div>
+</div>
+<a id="ac2914ba4145a94708c51d68091ed233b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2914ba4145a94708c51d68091ed233b">&#9670;&nbsp;</a></span>transmitQueue</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.transmitQueue</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Holds a package before it is transmitted. </p>
+<p>In both cases, the maxsize is only to prevent memory leak in case of failure. It should never hold more than a couple of pacakges/messages. </p>
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00130">130</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00220">pyHandyCAN.HandyCAN.sendPack()</a>, and <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
+
+</div>
+</div>
+<a id="a6bd6e9052f8a6f5191664a4f5f95e1a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bd6e9052f8a6f5191664a4f5f95e1a9">&#9670;&nbsp;</a></span>transmitThread</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.transmitThread</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00167">167</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
+
+</div>
+</div>
+<a id="acd9848b678c9d488d80b2ec08cf59266"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd9848b678c9d488d80b2ec08cf59266">&#9670;&nbsp;</a></span>txe</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">pyHandyCAN.HandyCAN.txe</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Transmit enable. </p>
+
+<p class="definition">Definition at line <a class="el" href="pyHandyCAN_8py_source.html#l00132">132</a> of file <a class="el" href="pyHandyCAN_8py_source.html">pyHandyCAN.py</a>.</p>
+
+<p class="reference">Referenced by <a class="el" href="pyHandyCAN_8py_source.html#l00175">pyHandyCAN.HandyCAN.transmitThread()</a>.</p>
 
 </div>
 </div>

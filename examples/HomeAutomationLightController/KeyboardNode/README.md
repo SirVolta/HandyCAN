@@ -58,6 +58,8 @@ An I2C EEPROM is used to keep configuration data like the node's name.
 
 # Pinout
 - A1: Speaker
+- B3: PS/2 CLOCK
+- B4: PS/2 DATA
 - A11: CAN RX
 - A12: CAN TX
 - B6: I2C EEPROM CLOCK
